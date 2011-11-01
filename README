@@ -1,0 +1,11 @@
+WHAT IS IT?
+===========
+SliceAndDaid is a 3D slicer written in Java. It's a faster replacement
+for skeinforge.
+
+It processes STL input files into GCode. Or atleast, it will at some point.
+Right now it just slices the model into lines, creates an outline.
+
+The next step will be to create the GCode for those outlines.
+
+It currently does so in seconds instead of minutes compared to Skeinforge.
