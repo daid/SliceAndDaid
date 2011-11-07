@@ -9,9 +9,7 @@ public class Vector2
 		this.x = x;
 		this.y = y;
 		if (Double.isNaN(x) || Double.isNaN(y))
-		{
 			throw new RuntimeException("Vector has NaN component...");
-		}
 	}
 	
 	public Vector2 add(Vector2 v)
@@ -54,6 +52,9 @@ public class Vector2
 		return x + "," + y;
 	}
 	
+	/**
+	 * Returns a normalized vector with a length of 1, having the same direction as the origonal vector.
+	 */
 	public Vector2 normal()
 	{
 		double d = vSize();
@@ -62,11 +63,17 @@ public class Vector2
 		return new Vector2(x / d, y / d);
 	}
 	
+	/**
+	 * Returns the length of the vector.
+	 */
 	public double vSize()
 	{
 		return Math.sqrt(x * x + y * y);
 	}
 	
+	/**
+	 * Returns the squared length of the vector (faster then vSize())
+	 */
 	public double vSize2()
 	{
 		return x * x + y * y;

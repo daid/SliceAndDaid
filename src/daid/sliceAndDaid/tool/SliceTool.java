@@ -9,6 +9,10 @@ import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.util.Triangle;
 import daid.sliceAndDaid.util.Vector3;
 
+/**
+ * The slice tool slices the model into layers, it does so by going trough all model triangles and
+ * slice those into 2D lines.
+ */
 public class SliceTool
 {
 	private Model model;
@@ -26,7 +30,7 @@ public class SliceTool
 		Vector3 modelMin = model.getMin();
 		Vector3 modelMax = model.getMax();
 		double firstLayerHeight = ((double) CraftConfig.firstLayerHeightPercent) / 100.0 + extraLayerOffset;
-		int layerCount = (int) (modelMax.z / layerHeight + firstLayerHeight); // Add 0.5 because we start slicing at half the layer height.
+		int layerCount = (int) (modelMax.z / layerHeight + firstLayerHeight);
 		
 		int firstLayer = startLayer;
 		int lastLayer = endLayer;
@@ -53,7 +57,7 @@ public class SliceTool
 			{
 				if (i >= firstLayer && i < lastLayer)
 				{
-					double layerZ = (((double) i) + 0.5) * layerHeight;
+					double layerZ = (((double) i) + firstLayerHeight) * layerHeight;
 					Segment2D s = t.project2D(layerZ);
 					if (s != null)
 						layers.get(i - firstLayer).addModelSegment(s);

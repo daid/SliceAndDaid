@@ -5,11 +5,13 @@ import java.util.Vector;
 
 import javax.swing.SwingUtilities;
 
-import daid.sliceAndDaid.config.ConfigWindow;
 import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.config.CraftConfigLoader;
 import daid.sliceAndDaid.tool.OutlineTool;
+import daid.sliceAndDaid.tool.PathTool;
 import daid.sliceAndDaid.tool.SliceTool;
+import daid.sliceAndDaid.ui.ConfigWindow;
+import daid.sliceAndDaid.ui.PreviewFrame;
 
 public class SliceAndDaidMain
 {
@@ -17,7 +19,7 @@ public class SliceAndDaidMain
 	{
 		CraftConfigLoader.loadConfig(null);
 		
-		if (args.length < 2)
+		if (args.length < 1)
 		{
 			
 			SwingUtilities.invokeLater(new Runnable()
@@ -36,6 +38,9 @@ public class SliceAndDaidMain
 	
 	public static void sliceModel(String filename)
 	{
+		CraftConfig.lastSlicedFile = filename;
+		CraftConfigLoader.saveConfig(null);
+		
 		Model m;
 		try
 		{
@@ -48,12 +53,17 @@ public class SliceAndDaidMain
 		m.center();
 		SliceTool slicer = new SliceTool(m);
 		final Vector<Layer> layers = slicer.sliceModel(CraftConfig.startLayerNr, CraftConfig.endLayerNr, 0.0);
+		System.out.println("Creating outlines");
 		for (int i = 0; i < layers.size(); i++)
 		{
 			for (int c = 0; c < CraftConfig.outlineCount; c++)
 			{
-				new OutlineTool(layers.get(i), CraftConfig.outlineWidth * (0.5 + (double) c)).createOutline();
+				new OutlineTool(layers.get(i), CraftConfig.outlineWidth * (0.5 + (double) c)).createOutline(c);
 			}
+		}
+		for (int i = 0; i < layers.size(); i++)
+		{
+			new PathTool(layers.get(i)).generatePath();
 		}
 		
 		SwingUtilities.invokeLater(new Runnable()

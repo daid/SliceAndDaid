@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 import javax.swing.JButton;
@@ -90,13 +89,7 @@ public class ConfigWindow extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				CraftConfig.showLevel = levelSelect.getSelectedIndex();
-				try
-				{
-					CraftConfigLoader.saveConfig(null);
-				} catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}
+				CraftConfigLoader.saveConfig(null);
 				createConfigFields(CraftConfig.showLevel);
 			}
 		});

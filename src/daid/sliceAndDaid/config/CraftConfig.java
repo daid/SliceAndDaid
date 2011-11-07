@@ -1,12 +1,15 @@
 package daid.sliceAndDaid.config;
 
+/**
+ * The CraftConfig class contains the configurable
+ * settings for the slicer. Reflection and annotations
+ * are used to make it easy to generate the configuration
+ * dialog.
+ * NOTE: Do not auto format this file. Manual format keeps it readable!
+ */
 public class CraftConfig
 {
 	public static final String VERSION = "Dev-Prerelease";
-	
-	/**************************
-	 * Configuration settings *
-	 **************************/
 
 	@Setting(level = Setting.LEVEL_STARTER,
 			title = "Layer height (mm)",
@@ -24,7 +27,7 @@ public class CraftConfig
 			title = "Outline count",
 			description = "Amount of outline walls",
 			minValue = 1, maxValue = Integer.MAX_VALUE)
-	public static double outlineCount = 3;
+	public static int outlineCount = 3;
 
 	@Setting(level = Setting.LEVEL_ADVANCED,
 			title = "First layer slice height (%)",
@@ -49,4 +52,11 @@ public class CraftConfig
 			description = "Last layer that is sliced, can be used to remove the top X layers.",
 			minValue = 0, maxValue = Integer.MAX_VALUE)
 	public static int endLayerNr = Integer.MAX_VALUE;
+	
+	
+	
+	@Setting(level = Setting.LEVEL_HIDDEN)
+	public static int showLevel = Integer.MAX_VALUE;
+	@Setting(level = Setting.LEVEL_HIDDEN)
+	public static String lastSlicedFile = "";
 }

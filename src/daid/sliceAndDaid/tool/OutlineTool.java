@@ -2,6 +2,7 @@ package daid.sliceAndDaid.tool;
 
 import daid.sliceAndDaid.Layer;
 import daid.sliceAndDaid.Segment2D;
+import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.util.Vector2;
 
 public class OutlineTool
@@ -15,9 +16,9 @@ public class OutlineTool
 		this.distance = distance;
 	}
 	
-	public void createOutline()
+	public void createOutline(int index)
 	{
-		for (Segment2D segStart : layer.modelSegmentOutlines)
+		for (Segment2D segStart : layer.modelPart.polygons)
 		{
 			Segment2D prev = null;
 			Segment2D first = null;
@@ -26,6 +27,7 @@ public class OutlineTool
 				Vector2 start = s.start.sub(s.normal.mul(distance));
 				Vector2 end = s.end.sub(s.normal.mul(distance));
 				Segment2D newSeg = new Segment2D(Segment2D.TYPE_OUTLINE, start, end);
+				newSeg.lineWidth = CraftConfig.outlineWidth;
 				layer.segmentList.add(newSeg);
 				
 				if (prev == null)
@@ -39,9 +41,15 @@ public class OutlineTool
 				prev = newSeg;
 			}
 			linkUp(prev, first);
+			layer.outlinePart[index].polygons.add(first);
 		}
 	}
 	
+	/**
+	 * Link up the 2 segments to each other, this will extend the segment so that the 2 segments
+	 * cross, unless the extend it longer then the 'distance', at which point an extra segment is
+	 * created. This will help with very high angle corners.
+	 */
 	private void linkUp(Segment2D prev, Segment2D next)
 	{
 		double x12 = prev.start.x - prev.end.x;
@@ -56,7 +64,6 @@ public class OutlineTool
 			p = prev.end.add(next.start).div(2);
 		} else
 		{
-			
 			double a = prev.start.x * prev.end.y - prev.start.y * prev.end.x;
 			double b = next.start.x * next.end.y - next.start.y * next.end.x;
 			
@@ -71,6 +78,7 @@ public class OutlineTool
 			prev.end = p1;
 			next.start = p2;
 			Segment2D newSeg = new Segment2D(Segment2D.TYPE_OUTLINE, p1, p2);
+			newSeg.lineWidth = CraftConfig.outlineWidth;
 			prev.next = newSeg;
 			newSeg.prev = prev;
 			next.prev = newSeg;

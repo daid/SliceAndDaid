@@ -14,6 +14,7 @@ public class Model
 	
 	public Model(String filename) throws IOException
 	{
+		System.out.println("Loading: " + filename);
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		
 		if (filename.toLowerCase().endsWith(".stl"))
@@ -31,7 +32,6 @@ public class Model
 		{
 			new RuntimeException("Unknown model format: " + filename);
 		}
-		System.out.println("Loaded: " + filename);
 		System.out.println("Triangle count: " + triangles.size());
 		br.close();
 	}

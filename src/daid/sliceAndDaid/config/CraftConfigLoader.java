@@ -74,6 +74,9 @@ public class CraftConfigLoader
 			} else if (f.getType() == Integer.TYPE)
 			{
 				f.setInt(null, Integer.parseInt(value));
+			} else if (f.getType() == String.class)
+			{
+				f.set(null, value);
 			} else
 			{
 				throw new RuntimeException("Unknown config type: " + f.getType());
@@ -99,30 +102,37 @@ public class CraftConfigLoader
 	 * 
 	 * Saves the configuration to a file, use 'null' for the default config file.
 	 */
-	public static void saveConfig(String filename) throws IOException
+	public static void saveConfig(String filename)
 	{
 		if (filename == null)
 			filename = System.getProperty("user.home") + "/.SliceAndDaid.conf";
-		BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-		bw.write(";Saved with version: " + CraftConfig.VERSION + "\n");
-		bw.write("[SliceAndDaid config]\n");
-		Class<CraftConfig> configClass = CraftConfig.class;
-		for (final Field f : configClass.getFields())
+		try
 		{
-			Setting s = f.getAnnotation(Setting.class);
-			if (s == null)
-				continue;
-			try
+			BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
+			bw.write(";Saved with version: " + CraftConfig.VERSION + "\n");
+			bw.write("[SliceAndDaid config]\n");
+			Class<CraftConfig> configClass = CraftConfig.class;
+			for (final Field f : configClass.getFields())
 			{
-				bw.write(f.getName() + "=" + f.get(null).toString() + "\n");
-			} catch (IllegalArgumentException e)
-			{
-				e.printStackTrace();
-			} catch (IllegalAccessException e)
-			{
-				e.printStackTrace();
+				Setting s = f.getAnnotation(Setting.class);
+				if (s == null)
+					continue;
+				try
+				{
+					bw.write(f.getName() + "=" + f.get(null).toString() + "\n");
+				} catch (IllegalArgumentException e)
+				{
+					e.printStackTrace();
+				} catch (IllegalAccessException e)
+				{
+					e.printStackTrace();
+				}
 			}
+			bw.close();
+		} catch (IOException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-		bw.close();
 	}
 }

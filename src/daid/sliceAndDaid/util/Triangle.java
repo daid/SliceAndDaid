@@ -2,6 +2,9 @@ package daid.sliceAndDaid.util;
 
 import daid.sliceAndDaid.Segment2D;
 
+/**
+ * The triangle class represents a 3D triangle in a 3D model
+ */
 public class Triangle
 {
 	public Vector3[] point = new Vector3[3];
