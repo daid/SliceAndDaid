@@ -27,7 +27,15 @@ import daid.sliceAndDaid.SliceAndDaidMain;
 import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.config.CraftConfigLoader;
 import daid.sliceAndDaid.config.Setting;
+import daid.sliceAndDaid.util.Logger;
 
+/**
+ * The ConfigWindow class generates a JFrame window with the configurable options.
+ * 
+ * It uses reflection to get the configurable settings. This makes adding new settings easy.
+ * 
+ * NOTE: I suck at UI coding.
+ */
 public class ConfigWindow extends JFrame
 {
 	private static final long serialVersionUID = 1L;
@@ -166,7 +174,7 @@ public class ConfigWindow extends JFrame
 					comp = spinner;
 				} else
 				{
-					System.out.println("Unknown field type for config: " + type);
+					Logger.error("Unknown field type for config: " + type);
 				}
 				if (comp == null)
 					continue;

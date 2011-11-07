@@ -1,11 +1,23 @@
 WHAT IS IT?
 ===========
-SliceAndDaid is a 3D slicer written in Java. It's a faster replacement
+SliceAndDaid is a 3D slicer written in Java. It's a much faster replacement
 for skeinforge.
 
-It processes STL input files into GCode. Or atleast, it will at some point.
-Right now it just slices the model into lines, creates an outline.
+It processes STL input files into GCode. Right now it only creates the outline.
+It does NOT do infills yet. Which will be the next step.
 
-The next step will be to create the GCode for those outlines.
+However, it currently does so in seconds instead of minutes compared to Skeinforge.
 
-It currently does so in seconds instead of minutes compared to Skeinforge.
+HOW TO BUILD?
+=============
+I've provided a simple ant build script.
+So running with ant installed should be a simple:
+$ ant
+$ java -jar SliceAndDaid.jar
+
+There are no extra dependences, just java. Eclipse project files are also supplied.
+
+HOW TO USE?
+===========
+Change the settings you want, and slice ahead. The default settings should work
+on an Ultimaker. These settings are conservative.

@@ -6,6 +6,7 @@ import daid.sliceAndDaid.Layer;
 import daid.sliceAndDaid.Model;
 import daid.sliceAndDaid.Segment2D;
 import daid.sliceAndDaid.config.CraftConfig;
+import daid.sliceAndDaid.util.Logger;
 import daid.sliceAndDaid.util.Triangle;
 import daid.sliceAndDaid.util.Vector3;
 
@@ -36,7 +37,8 @@ public class SliceTool
 		int lastLayer = endLayer;
 		if (lastLayer > layerCount)
 			lastLayer = layerCount;
-		System.out.println("Slicing " + (lastLayer - firstLayer) + " layers");
+		Logger.updateStatus("Slicing layers");
+		Logger.message("Slicing " + (lastLayer - firstLayer) + " layers");
 		for (int i = firstLayer; i < lastLayer; i++)
 		{
 			layers.add(new Layer(i, modelMin.x, modelMin.y, modelMax.x, modelMax.y));
@@ -64,7 +66,7 @@ public class SliceTool
 				}
 			}
 		}
-		System.out.println("Optimizing layers");
+		Logger.updateStatus("Optimizing layers");
 		for (int i = 0; i < layers.size(); i++)
 		{
 			layers.get(i).optimize();

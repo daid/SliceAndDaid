@@ -6,6 +6,7 @@ import java.util.Vector;
 import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.util.AABBTree;
 import daid.sliceAndDaid.util.AABBrect;
+import daid.sliceAndDaid.util.Logger;
 
 public class Layer
 {
@@ -95,8 +96,7 @@ public class Layer
 			{
 				if (!tmpSet.contains(s))
 				{
-					System.err.println("Problem in layer: " + layerNr);
-					System.err.println("Tried to create a segment link from links that where already used...");
+					Logger.warning("Problem in layer: " + layerNr + "\nTried to create a segment link from links that where already used...");
 					break;
 				}
 				if (s.next == start)
@@ -115,7 +115,7 @@ public class Layer
 			} else
 			{
 				if (!manifoldErrorReported)
-					System.err.println("Object not manifold in layer: " + layerNr);
+					Logger.warning("Object not manifold in layer: " + layerNr);
 				manifoldErrorReported = true;
 				for (Segment2D s = start; s != null; s = s.next)
 				{

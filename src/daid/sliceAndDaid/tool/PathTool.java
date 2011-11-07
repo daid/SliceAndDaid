@@ -39,7 +39,7 @@ public class PathTool
 				next = polys.get(0);
 				if (prev != null)
 				{
-					for(int n=0;n<polys.size();n++)
+					for (int n = 0; n < polys.size(); n++)
 					{
 						if (polys.get(n).getAABBDist(prev) < next.getAABBDist(prev))
 							next = polys.get(n);

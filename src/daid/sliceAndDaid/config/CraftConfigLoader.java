@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import daid.sliceAndDaid.util.Logger;
+
 public class CraftConfigLoader
 {
 	/***************************
@@ -55,7 +57,7 @@ public class CraftConfigLoader
 			}
 		} catch (IOException e)
 		{
-			System.err.println("IOException during loading of config file...");
+			Logger.error("IOException during loading of config file...");
 		}
 	}
 	

@@ -29,12 +29,13 @@ public class Triangle
 			ret = setSegment(ret, layerZ, point[2], point[0], point[1]);
 		else
 		{
-			// System.err.println("Cannot handle triangle:\n" + point[0] + "\n" + point[1] + "\n" + point[2] + "\non Z: " + layerZ);
+			// Logger.error("Cannot handle triangle:\n" + point[0] + "\n" + point[1] + "\n" +
+			// point[2] + "\non Z: " + layerZ);
 			return null;
 		}
 		if (Double.isNaN(ret.start.x) || Double.isNaN(ret.end.x))
 		{
-			System.err.println("Error on triangle:\n" + point[0] + "\n" + point[1] + "\n" + point[2] + "\non Z: " + layerZ);
+			Logger.error("Error on triangle:\n" + point[0] + "\n" + point[1] + "\n" + point[2] + "\non Z: " + layerZ);
 		}
 		
 		return ret;

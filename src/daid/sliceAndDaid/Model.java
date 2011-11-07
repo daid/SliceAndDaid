@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import daid.sliceAndDaid.util.Logger;
 import daid.sliceAndDaid.util.Triangle;
 import daid.sliceAndDaid.util.Vector3;
 
@@ -14,7 +15,7 @@ public class Model
 	
 	public Model(String filename) throws IOException
 	{
-		System.out.println("Loading: " + filename);
+		Logger.updateStatus("Loading: " + filename);
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		
 		if (filename.toLowerCase().endsWith(".stl"))
@@ -32,7 +33,7 @@ public class Model
 		{
 			new RuntimeException("Unknown model format: " + filename);
 		}
-		System.out.println("Triangle count: " + triangles.size());
+		Logger.message("Triangle count: " + triangles.size());
 		br.close();
 	}
 	

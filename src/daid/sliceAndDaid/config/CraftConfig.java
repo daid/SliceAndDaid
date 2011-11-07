@@ -29,6 +29,24 @@ public class CraftConfig
 			minValue = 1, maxValue = Integer.MAX_VALUE)
 	public static int outlineCount = 3;
 
+	@Setting(level = Setting.LEVEL_STARTER,
+			title = "Print speed (mm/s)",
+			description = "Speed at which the head is moved while it's printing",
+			minValue = 0, maxValue = 10000)
+	public static double printSpeed = 40.0;
+
+	@Setting(level = Setting.LEVEL_NORMAL,
+			title = "Travel speed (mm/s)",
+			description = "Speed at which the head is moved while it's not printing",
+			minValue = 0, maxValue = 10000)
+	public static double travelSpeed = 150.0;
+
+	@Setting(level = Setting.LEVEL_STARTER,
+			title = "Filament diameter (mm)",
+			description = "The diameter of the filament, as accurate as possible. Else, if you get to little extrusion reduce this number, if you get to much, increase this number.",
+			minValue = 0, maxValue = 10)
+	public static double filamentDiameter = 2.89;
+
 	@Setting(level = Setting.LEVEL_ADVANCED,
 			title = "First layer slice height (%)",
 			description = "Starting height of the first slice in the model. 50% is the default.",
