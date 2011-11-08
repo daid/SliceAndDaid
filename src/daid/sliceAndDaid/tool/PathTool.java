@@ -21,7 +21,7 @@ public class PathTool
 		this.layer = layer;
 	}
 	
-	public void generatePath()
+	public void generatePath(Vector2 bestStartPoint)
 	{
 		Segment2D prev = null;
 		
@@ -48,7 +48,7 @@ public class PathTool
 				polys.remove(next);
 				if (prev == null)
 				{
-					next = next.closestTo(new Vector2(0, 0));
+					next = next.closestTo(bestStartPoint);
 					layer.pathStart = next;
 					prev = next.prev;
 				} else

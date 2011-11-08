@@ -22,6 +22,7 @@ public class GCodeTool
 	{
 		double filamentMM3PerMM = Math.PI * (CraftConfig.filamentDiameter / 2) * (CraftConfig.filamentDiameter / 2);
 		
+		file.writeComment("LAYER:" + layer.layerNr);
 		file.writeMoveZ((double) (layer.layerNr + 1) * CraftConfig.layerHeight, CraftConfig.travelSpeed, "Move to layer: " + layer.layerNr);
 		file.writeMoveXY(layer.pathStart.start.x, layer.pathStart.start.y, CraftConfig.travelSpeed, "");
 		for (Segment2D s = layer.pathStart; s != null; s = s.next)
@@ -36,7 +37,7 @@ public class GCodeTool
 				// Then divide this by the amount of mm3 we have per mm filament, so we get the
 				// amount of mm of filament we need to extrude.
 				filamentAmount = filamentAmount / filamentMM3PerMM;
-				file.writeMoveXYE(s.end.x, s.end.y, CraftConfig.printSpeed, filamentAmount, "");
+				file.writeMoveXYE(s.end.x, s.end.y, filamentAmount, CraftConfig.printSpeed, "");
 			}
 		}
 	}

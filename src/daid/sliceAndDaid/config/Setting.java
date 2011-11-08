@@ -23,4 +23,6 @@ public @interface Setting
 	public double maxValue() default Double.MAX_VALUE;
 	
 	public int level() default Setting.LEVEL_NORMAL;
+	
+	public String enumName() default "";
 }

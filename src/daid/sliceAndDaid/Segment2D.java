@@ -5,10 +5,17 @@ import java.util.Iterator;
 import daid.sliceAndDaid.util.AABBrect;
 import daid.sliceAndDaid.util.Vector2;
 
+/**
+ * Segment2D represents a line in 2D space.
+ * 
+ * It also knows about it's previous and next line segment. This caused more code to creep into this
+ * class, and now it is also used to manage segment loops, sortof. It's kinda messy, but works for
+ * now.
+ */
 public class Segment2D extends AABBrect implements Iterable<Segment2D>
 {
 	public final static int TYPE_MODEL_SLICE = 0;
-	public final static int TYPE_OUTLINE = 1;
+	public final static int TYPE_PERIMETER = 1;
 	public final static int TYPE_MOVE = 2;
 	public final static int TYPE_FILL = 3;
 	public final static int TYPE_ERROR = 0xFFFF;
@@ -64,6 +71,24 @@ public class Segment2D extends AABBrect implements Iterable<Segment2D>
 		updateAABB(start, end, 1.0);
 	}
 	
+	/**
+	 * Get the closest segment in this segment loop
+	 */
+	public Segment2D closestTo(Vector2 p)
+	{
+		Segment2D best = this;
+		double bestDist = 99999;
+		for (Segment2D s : this)
+		{
+			if (s.start.sub(p).vSize2() < bestDist)
+			{
+				bestDist = s.start.sub(p).vSize2();
+				best = s;
+			}
+		}
+		return best;
+	}
+	
 	public String toString()
 	{
 		return "Segment:" + start + " " + end;
@@ -105,18 +130,24 @@ public class Segment2D extends AABBrect implements Iterable<Segment2D>
 		}
 	}
 	
-	public Segment2D closestTo(Vector2 p)
+	public Vector2 getIntersectionPoint(Segment2D other)
 	{
-		Segment2D best = this;
-		double bestDist = 99999;
-		for (Segment2D s : this)
+		double x12 = start.x - end.x;
+		double x34 = other.start.x - other.end.x;
+		double y12 = start.y - end.y;
+		double y34 = other.start.y - other.end.y;
+		
+		// Calculate the intersection of the 2 segments.
+		double c = x12 * y34 - y12 * x34;
+		if (Math.abs(c) < 0.0001)
 		{
-			if (s.start.sub(p).vSize2() < bestDist)
-			{
-				bestDist = s.start.sub(p).vSize2();
-				best = s;
-			}
+			return end.add(other.start).div(2);
+		} else
+		{
+			double a = start.x * end.y - start.y * end.x;
+			double b = other.start.x * other.end.y - other.start.y * other.end.x;
+			
+			return new Vector2((a * x34 - b * x12) / c, (a * y34 - b * y12) / c);
 		}
-		return best;
 	}
 }

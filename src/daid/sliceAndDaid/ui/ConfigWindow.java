@@ -10,12 +10,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -120,10 +122,9 @@ public class ConfigWindow extends JFrame
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.weighty = 1;
-		c.ipadx = 10;
 		for (final Field f : configClass.getFields())
 		{
-			Setting s = f.getAnnotation(Setting.class);
+			final Setting s = f.getAnnotation(Setting.class);
 			Object obj = null;
 			
 			try
@@ -134,57 +135,35 @@ public class ConfigWindow extends JFrame
 					continue;
 				if (s.level() > minShowLevel)
 					continue;
-				Component comp = null;
-				Class<?> type = f.getType();
-				if (type == Integer.TYPE)
-				{
-					JSpinner spinner = new JSpinner(new SpinnerNumberModel(f.getInt(null), (int) s.minValue(), (int) s.maxValue(), 1));
-					spinner.addChangeListener(new ChangeListener()
-					{
-						public void stateChanged(ChangeEvent e)
-						{
-							try
-							{
-								f.setInt(null, ((Integer) ((JSpinner) e.getSource()).getValue()).intValue());
-								CraftConfigLoader.saveConfig(null);
-							} catch (Exception e1)
-							{
-								e1.printStackTrace();
-							}
-						}
-					});
-					comp = spinner;
-				} else if (type == Double.TYPE)
-				{
-					JSpinner spinner = new JSpinner(new SpinnerNumberModel(f.getDouble(null), s.minValue(), s.maxValue(), 0.01));
-					spinner.addChangeListener(new ChangeListener()
-					{
-						public void stateChanged(ChangeEvent e)
-						{
-							try
-							{
-								f.setDouble(null, ((Double) ((JSpinner) e.getSource()).getValue()).doubleValue());
-								CraftConfigLoader.saveConfig(null);
-							} catch (Exception e1)
-							{
-								e1.printStackTrace();
-							}
-						}
-					});
-					comp = spinner;
-				} else
-				{
-					Logger.error("Unknown field type for config: " + type);
-				}
+				final Component comp = getSwingComponentForField(f, s);
+				
 				if (comp == null)
 					continue;
 				
+				final JLabel label = new JLabel(s.title() + ":");
+				JButton helpButton = null;
+				
+				if (!s.description().equals(""))
+				{
+					helpButton = new JButton("?");
+					helpButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+					helpButton.addActionListener(new ActionListener()
+					{
+						public void actionPerformed(ActionEvent e)
+						{
+							JOptionPane.showMessageDialog(label, s.description());
+						}
+					});
+				}
+				
 				comp.setPreferredSize(new Dimension(100, 25));
-				JLabel label = new JLabel(s.title() + ":");
-				label.setToolTipText(s.description());
+				c.ipadx = 0;
 				c.gridx = 0;
-				configSettingsPanel.add(label, c);
+				configSettingsPanel.add(helpButton, c);
+				c.ipadx = 10;
 				c.gridx = 1;
+				configSettingsPanel.add(label, c);
+				c.gridx = 2;
 				configSettingsPanel.add(comp, c);
 				c.gridy++;
 			} catch (IllegalArgumentException e)
@@ -198,5 +177,84 @@ public class ConfigWindow extends JFrame
 		
 		this.pack();
 		this.setLocationRelativeTo(null);
+	}
+	
+	private Component getSwingComponentForField(final Field f, Setting s) throws IllegalArgumentException, IllegalAccessException
+	{
+		if (f.getType() == Integer.TYPE)
+		{
+			if (s.enumName().equals(""))
+			{
+				JSpinner spinner = new JSpinner(new SpinnerNumberModel(f.getInt(null), (int) s.minValue(), (int) s.maxValue(), 1));
+				spinner.addChangeListener(new ChangeListener()
+				{
+					public void stateChanged(ChangeEvent e)
+					{
+						try
+						{
+							f.setInt(null, ((Integer) ((JSpinner) e.getSource()).getValue()).intValue());
+							CraftConfigLoader.saveConfig(null);
+						} catch (Exception e1)
+						{
+							e1.printStackTrace();
+						}
+					}
+				});
+				return spinner;
+			} else
+			{
+				Vector<String> items = new Vector<String>();
+				for (final Field enumField : CraftConfig.class.getFields())
+				{
+					String name = enumField.getName();
+					if (name.startsWith(s.enumName() + "_"))
+					{
+						name = name.substring(name.indexOf("_") + 1);
+						name = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+						name = name.replace('_', ' ');
+						items.add(name);
+					}
+				}
+				final JComboBox combo = new JComboBox(items);
+				combo.setSelectedIndex(f.getInt(null));
+				combo.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						try
+						{
+							f.setInt(null, combo.getSelectedIndex());
+							CraftConfigLoader.saveConfig(null);
+						} catch (Exception e1)
+						{
+							e1.printStackTrace();
+						}
+					}
+				});
+				return combo;
+			}
+		} else if (f.getType() == Double.TYPE)
+		{
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(f.getDouble(null), s.minValue(), s.maxValue(), 0.01));
+			spinner.addChangeListener(new ChangeListener()
+			{
+				public void stateChanged(ChangeEvent e)
+				{
+					try
+					{
+						f.setDouble(null, ((Double) ((JSpinner) e.getSource()).getValue()).doubleValue());
+						CraftConfigLoader.saveConfig(null);
+					} catch (Exception e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+			return spinner;
+		} else
+		{
+			Logger.error("Unknown field type for config: " + f.getType());
+		}
+		return null;
 	}
 }

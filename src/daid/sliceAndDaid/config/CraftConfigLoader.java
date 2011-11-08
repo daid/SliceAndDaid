@@ -94,7 +94,7 @@ public class CraftConfigLoader
 			e.printStackTrace();
 		} catch (NoSuchFieldException e)
 		{
-			e.printStackTrace();
+			Logger.warning("Found: " + key + " in the configuration, but I don't know this setting");
 		}
 		
 	}

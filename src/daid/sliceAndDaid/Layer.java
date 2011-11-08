@@ -15,16 +15,14 @@ public class Layer
 	public Vector<Segment2D> segmentList = new Vector<Segment2D>();
 	
 	public Segment2D pathStart;
-	public LayerPart modelPart = new LayerPart();
+	public LayerPart modelPart = new LayerPart(this);
 	public LayerPart[] outlinePart;
 	private AABBTree<Segment2D> modelSegmentTree = new AABBTree<Segment2D>();
 	
 	public Layer(int layerNr, double minX, double minY, double maxX, double maxY)
 	{
 		this.layerNr = layerNr;
-		this.outlinePart = new LayerPart[CraftConfig.outlineCount];
-		for (int i = 0; i < CraftConfig.outlineCount; i++)
-			this.outlinePart[i] = new LayerPart();
+		this.outlinePart = new LayerPart[CraftConfig.perimeterCount];
 	}
 	
 	public void addModelSegment(Segment2D segment)

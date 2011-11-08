@@ -11,6 +11,10 @@ public class CraftConfig
 {
 	public static final String VERSION = "Dev-Prerelease";
 
+	public static final int GCODE_FULL = 0;
+	public static final int GCODE_COMPACT = 1;
+	public static final int GCODE_TINY_COMPACT = 2;
+
 	@Setting(level = Setting.LEVEL_STARTER,
 			title = "Layer height (mm)",
 			description = "Height of each sliced layer",
@@ -18,16 +22,16 @@ public class CraftConfig
 	public static double layerHeight = 0.2;
 
 	@Setting(level = Setting.LEVEL_STARTER,
-			title = "Width of the outline",
-			description = "The width of the outline, a good value is the inner radius of your nozzle tip.",
+			title = "Width of the perimeter lines",
+			description = "The width of the perimeter lines, a good value is the inner radius of your nozzle tip.",
 			minValue = 0, maxValue = Integer.MAX_VALUE)
-	public static double outlineWidth = 0.4;
+	public static double perimeterWidth = 0.4;
 
 	@Setting(level = Setting.LEVEL_NORMAL,
-			title = "Outline count",
-			description = "Amount of outline walls",
+			title = "Perimeter line count",
+			description = "Amount of perimeter walls",
 			minValue = 1, maxValue = Integer.MAX_VALUE)
-	public static int outlineCount = 3;
+	public static int perimeterCount = 3;
 
 	@Setting(level = Setting.LEVEL_STARTER,
 			title = "Print speed (mm/s)",
@@ -43,7 +47,9 @@ public class CraftConfig
 
 	@Setting(level = Setting.LEVEL_STARTER,
 			title = "Filament diameter (mm)",
-			description = "The diameter of the filament, as accurate as possible. Else, if you get to little extrusion reduce this number, if you get to much, increase this number.",
+			description = "The diameter of the filament, as accurate as possible.\n"+
+				"If you cannot measure it accurate then manually tweak it.\n"+
+				"If you get to little extrusion reduce this number, if you get to much, increase this number.",
 			minValue = 0, maxValue = 10)
 	public static double filamentDiameter = 2.89;
 
@@ -71,10 +77,17 @@ public class CraftConfig
 			minValue = 0, maxValue = Integer.MAX_VALUE)
 	public static int endLayerNr = Integer.MAX_VALUE;
 	
-	
+	@Setting(level = Setting.LEVEL_ADVANCED,
+			title = "GCode format",
+			description = "Different GCode exports types are supported.\n"+
+			"Full: exports everything with comments. Use this for debugging, or post processing of the GCode.\n" +
+			"Compact: removes the comments, and assumes the last feedrate will be reused. (About 25% smaller then full)\n" +
+			"Tiny compact: tries to export the minimum amount of GCode required. Not all firmwares and parsers will work with this (About 10% smaller then compact).",
+			enumName = "GCODE")
+	public static int gcodeType = GCODE_COMPACT;
 	
 	@Setting(level = Setting.LEVEL_HIDDEN)
-	public static int showLevel = Integer.MAX_VALUE;
+	public static int showLevel = Setting.LEVEL_STARTER;
 	@Setting(level = Setting.LEVEL_HIDDEN)
 	public static String lastSlicedFile = "";
 }
