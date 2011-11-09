@@ -12,7 +12,8 @@ public @interface Setting
 	int LEVEL_STARTER = 0;
 	int LEVEL_NORMAL = 1;
 	int LEVEL_ADVANCED = 2;
-	int LEVEL_HIDDEN = 3;
+	int LEVEL_KITCHENSINK = 3;
+	int LEVEL_HIDDEN = 4;
 	
 	public String title() default "";
 	

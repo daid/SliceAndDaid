@@ -29,7 +29,7 @@ public class PreviewFrame extends JFrame
 	{
 		private static final long serialVersionUID = 1L;
 		
-		public int showLayer = 6;
+		public int showLayer = 0;
 		public double drawScale = 5.0;
 		public double viewOffsetX, viewOffsetY;
 		
@@ -43,33 +43,45 @@ public class PreviewFrame extends JFrame
 		public void paint(Graphics g)
 		{
 			super.paint(g);
-			for (Segment2D s : layers.get(showLayer).segmentList)
+			for (Segment2D s : layers.get(showLayer).modelSegmentList)
 			{
-				switch (s.type)
-				{
-				case Segment2D.TYPE_MODEL_SLICE:
-					g.setColor(Color.GREEN);
-					break;
-				case Segment2D.TYPE_PERIMETER:
-					g.setColor(Color.BLACK);
-					break;
-				case Segment2D.TYPE_FILL:
-					g.setColor(Color.YELLOW);
-					break;
-				default:
-					g.setColor(Color.RED);
-					break;
-				}
-				drawModelLine(g, s.start, s.end);
-				Vector2 center = s.start.add(s.end).div(2);
-				Vector2 normal = center.add(s.normal);
-				drawModelLine(g, center, normal);
-				drawModelLine(g, s.start, normal);
-				if (s.prev == null)
-					drawModelCircle(g, s.start, 10);
-				if (s.next == null)
-					drawModelCircle(g, s.end, 10);
+				drawSegment(g, s);
 			}
+			for (Segment2D s : layers.get(showLayer).pathStart)
+			{
+				drawSegment(g, s);
+			}
+		}
+		
+		private void drawSegment(Graphics g, Segment2D s)
+		{
+			switch (s.type)
+			{
+			case Segment2D.TYPE_MODEL_SLICE:
+				g.setColor(Color.GREEN);
+				break;
+			case Segment2D.TYPE_PERIMETER:
+				g.setColor(Color.BLACK);
+				break;
+			case Segment2D.TYPE_FILL:
+				g.setColor(Color.YELLOW);
+				break;
+			case Segment2D.TYPE_MOVE:
+				g.setColor(Color.BLUE);
+				break;
+			default:
+				g.setColor(Color.RED);
+				break;
+			}
+			drawModelLine(g, s.start, s.end);
+			Vector2 center = s.start.add(s.end).div(2);
+			Vector2 normal = center.add(s.normal.div(drawScale / 5));
+			drawModelLine(g, center, normal);
+			drawModelLine(g, s.start, normal);
+			if (s.prev == null)
+				drawModelCircle(g, s.start, 10);
+			if (s.next == null)
+				drawModelCircle(g, s.end, 10);
 		}
 		
 		private void drawModelLine(Graphics g, Vector2 start, Vector2 end)
@@ -133,7 +145,7 @@ public class PreviewFrame extends JFrame
 		this.add(viewPanel, BorderLayout.CENTER);
 		this.add(actionPanel, BorderLayout.SOUTH);
 		
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setSize(600, 600);
 		this.setVisible(true);

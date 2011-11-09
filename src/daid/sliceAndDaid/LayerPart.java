@@ -43,7 +43,39 @@ public class LayerPart
 	
 	public void add(Segment2D newSeg)
 	{
-		layer.segmentList.add(newSeg);
 		tree.insert(newSeg);
+	}
+	
+	/**
+	 * makeConvex is used to generate a single convex polygon from the existing polygon set.
+	 * 
+	 * This is used for the skirt. And it's currently not working correctly.
+	 */
+	public LayerPart makeConvex()
+	{
+		Segment2D poly = getLargestPolygon();
+		LayerPart ret = new LayerPart(this);
+
+		Segment2D first = null;
+		Segment2D prev = null;
+		for(Segment2D s1 : poly)
+		{
+			Segment2D s = new Segment2D(Segment2D.TYPE_PERIMETER, s1.start, s1.end);
+			
+			if (prev == null)
+			{
+				first = s;
+			} else
+			{
+				prev.next = s;
+				s.prev = prev;
+			}
+			prev = s;
+		}
+		first.prev = prev;
+		prev.next = first;
+		ret.polygons.add(first);
+		
+		return ret;
 	}
 }

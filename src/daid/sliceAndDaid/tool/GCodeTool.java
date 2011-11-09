@@ -29,7 +29,7 @@ public class GCodeTool
 		{
 			if (s.lineWidth < 0)
 			{
-				file.writeMoveXY(s.end.x, s.end.y, CraftConfig.travelSpeed, "");
+				file.writeMoveXY(s.end.x, s.end.y, s.feedRate, "");
 			} else
 			{
 				// First calculate the amount of filament we need in mm3
@@ -37,7 +37,7 @@ public class GCodeTool
 				// Then divide this by the amount of mm3 we have per mm filament, so we get the
 				// amount of mm of filament we need to extrude.
 				filamentAmount = filamentAmount / filamentMM3PerMM;
-				file.writeMoveXYE(s.end.x, s.end.y, filamentAmount, CraftConfig.printSpeed, "");
+				file.writeMoveXYE(s.end.x, s.end.y, filamentAmount, s.feedRate, "");
 			}
 		}
 	}

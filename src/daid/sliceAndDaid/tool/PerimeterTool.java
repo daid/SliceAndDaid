@@ -19,7 +19,7 @@ public class PerimeterTool
 		this.distance = distance;
 	}
 	
-	public LayerPart createPerimeter(int index)
+	public LayerPart createPerimeter()
 	{
 		LayerPart ret = new LayerPart(layerPart);
 		for (Segment2D segStart : layerPart.polygons)
@@ -58,10 +58,11 @@ public class PerimeterTool
 	private void linkUp(LayerPart ret, Segment2D prev, Segment2D next)
 	{
 		Vector2 p = prev.getIntersectionPoint(next);
-		
+		if (p == null)
+			p = prev.end.add(next.start).div(2);
 		// If the intersection point between the 2 moved lines is a bit further away then the line
 		// distance, then we are a tight corner and we need to be capped.
-		if (prev.end.sub(p).vSize2() > distance * 1.1 * distance * 1.1)
+		if (CraftConfig.perimeterCap && prev.end.sub(p).vSize2() > distance * 1.1 * distance * 1.1)
 		{
 			Vector2 p1 = prev.end.add(p.sub(prev.end).normal().mul(distance));
 			Vector2 p2 = next.start.add(p.sub(next.start).normal().mul(distance));

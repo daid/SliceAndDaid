@@ -24,6 +24,12 @@ public class PathTool
 	public void generatePath(Vector2 bestStartPoint)
 	{
 		Segment2D prev = null;
+		if (layer.skirt != null)
+		{
+			prev = layer.skirt.getLargestPolygon().closestTo(bestStartPoint);
+			layer.pathStart = prev;
+			prev = prev.prev;
+		}
 		
 		for (int i = 0; i < layer.outlinePart.length; i++)
 		{
@@ -55,8 +61,7 @@ public class PathTool
 				{
 					next = next.closestTo(prev.end);
 					Segment2D newPrev = next.prev;
-					Segment2D linkSeg = new Segment2D(Segment2D.TYPE_MOVE, prev, next);
-					layer.segmentList.add(linkSeg);
+					new Segment2D(Segment2D.TYPE_MOVE, prev, next);
 					prev = newPrev;
 				}
 			}

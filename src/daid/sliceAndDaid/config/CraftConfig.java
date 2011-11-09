@@ -54,6 +54,19 @@ public class CraftConfig
 	public static double filamentDiameter = 2.89;
 
 	@Setting(level = Setting.LEVEL_ADVANCED,
+			title = "Minimum layer time (s)",
+			description = "The minimal amount of time spend to print a single layer.\n" + 
+			"Gives time to cool the layer before the next one is printed.",
+			minValue = 0, maxValue = 200)
+	public static double minLayerTime = 10;
+
+	@Setting(level = Setting.LEVEL_NORMAL,
+			title = "Skirt distance (mm)",
+			description = "Distance of the skirt (outline around layer 0) from the model. Use 0 to disable.",
+			minValue = 0, maxValue = 10)
+	public static double skirtDistance = 6.0;
+
+	@Setting(level = Setting.LEVEL_KITCHENSINK,
 			title = "First layer slice height (%)",
 			description = "Starting height of the first slice in the model. 50% is the default.",
 			minValue = 0, maxValue = 200)
@@ -65,18 +78,23 @@ public class CraftConfig
 			minValue = 0.95, maxValue = 1.0)
 	public static double joinMinCosAngle = 0.995;
 
-	@Setting(level = Setting.LEVEL_ADVANCED,
+	@Setting(level = Setting.LEVEL_KITCHENSINK,
 			title = "Start layer number",
 			description = "First layer that is sliced, can be used to remove the bottom X layers",
 			minValue = 0, maxValue = Integer.MAX_VALUE)
 	public static int startLayerNr = 0;
 	
-	@Setting(level = Setting.LEVEL_ADVANCED,
+	@Setting(level = Setting.LEVEL_KITCHENSINK,
 			title = "Final layer number",
 			description = "Last layer that is sliced, can be used to remove the top X layers.",
 			minValue = 0, maxValue = Integer.MAX_VALUE)
 	public static int endLayerNr = Integer.MAX_VALUE;
-	
+
+	@Setting(level = Setting.LEVEL_KITCHENSINK,
+			title = "Cap perimeter corners",
+			description = "Cap off tight corners in the perimeter.")
+	public static boolean perimeterCap = true;
+
 	@Setting(level = Setting.LEVEL_ADVANCED,
 			title = "GCode format",
 			description = "Different GCode exports types are supported.\n"+
@@ -85,8 +103,21 @@ public class CraftConfig
 			"Tiny compact: tries to export the minimum amount of GCode required. Not all firmwares and parsers will work with this (About 10% smaller then compact).",
 			enumName = "GCODE")
 	public static int gcodeType = GCODE_COMPACT;
-	
+
 	@Setting(level = Setting.LEVEL_HIDDEN)
+	public static String startGCode = "G28; Move to origin\n" +
+		"G92 X-105 Y-105 Z0; Put the 'origin' on the center of the platform\n" + 
+		"G1 Z5 F180; Move the head up a bit\n" + 
+		"G1 X0 Y0; Move to the center of the platfrom\n"+
+		"M106 S255; Turn on the fan\n" +
+		"G1 Z0 F180; Move the head down for printing of layer 0";
+
+	@Setting(level = Setting.LEVEL_HIDDEN)
+	public static String endGCode = "G1 X-200 Y-200; Move the X/Y away from the printed object\n" +
+		"M104 S0; Turn off the extruder temperature\n";
+
+	@Setting(level = Setting.LEVEL_HIDDEN,
+			minValue = Setting.LEVEL_STARTER, maxValue = Setting.LEVEL_KITCHENSINK)
 	public static int showLevel = Setting.LEVEL_STARTER;
 	@Setting(level = Setting.LEVEL_HIDDEN)
 	public static String lastSlicedFile = "";

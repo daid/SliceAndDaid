@@ -13,13 +13,17 @@ import java.lang.reflect.Field;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -49,12 +53,18 @@ public class ConfigWindow extends JFrame
 	{
 		this.setTitle("SliceAndDaid - " + CraftConfig.VERSION);
 		this.setResizable(false);
-		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		JTabbedPane tabbedPane = new JTabbedPane();
 		this.configSettingsPanel = new JPanel(new GridBagLayout());
 		this.actionPanel = new JPanel(new GridBagLayout());
-		this.add(configSettingsPanel);
-		this.add(actionPanel, BorderLayout.SOUTH);
+		
+		JTextArea startCodeTextArea = new JTextArea();
+		JTextArea endCodeTextArea = new JTextArea();
+		
+		tabbedPane.addTab("Settings", this.configSettingsPanel);
+		tabbedPane.addTab("Start GCode", new JScrollPane(startCodeTextArea));
+		tabbedPane.addTab("End GCode", new JScrollPane(endCodeTextArea));
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
@@ -67,7 +77,7 @@ public class ConfigWindow extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				JFileChooser fc = new JFileChooser();
+				final JFileChooser fc = new JFileChooser();
 				fc.setFileFilter(new FileFilter()
 				{
 					public boolean accept(File f)
@@ -87,13 +97,22 @@ public class ConfigWindow extends JFrame
 				int returnVal = fc.showOpenDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION)
 				{
-					SliceAndDaidMain.sliceModel(fc.getSelectedFile().toString());
+					final LogWindow logWindow = new LogWindow();
+					new Thread(new Runnable()
+					{
+						public void run()
+						{
+							SliceAndDaidMain.sliceModel(fc.getSelectedFile().toString());
+							logWindow.dispose();
+						}
+					}).start();
+					ConfigWindow.this.dispose();
 				}
 			}
 		});
 		this.actionPanel.add(sliceButton, c);
 		
-		final JComboBox levelSelect = new JComboBox(new String[] { "Starter", "Normal", "Advance" });
+		final JComboBox levelSelect = new JComboBox(new String[] { "Starter", "Normal", "Advance", "+Kitchen sink" });
 		levelSelect.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -105,6 +124,9 @@ public class ConfigWindow extends JFrame
 		});
 		levelSelect.setSelectedIndex(CraftConfig.showLevel);
 		this.actionPanel.add(levelSelect, c);
+		
+		this.add(tabbedPane);
+		this.add(actionPanel, BorderLayout.SOUTH);
 		
 		createConfigFields(CraftConfig.showLevel);
 		this.setVisible(true);
@@ -251,9 +273,28 @@ public class ConfigWindow extends JFrame
 				}
 			});
 			return spinner;
+		} else if (f.getType() == Boolean.TYPE)
+		{
+			JCheckBox checkbox = new JCheckBox();
+			checkbox.setSelected(f.getBoolean(null));
+			checkbox.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					try
+					{
+						f.setBoolean(null, ((JCheckBox) e.getSource()).isSelected());
+						CraftConfigLoader.saveConfig(null);
+					} catch (Exception e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+			return checkbox;
 		} else
 		{
-			Logger.error("Unknown field type for config: " + f.getType());
+			Logger.error("Unknown field type for config window: " + f.getType());
 		}
 		return null;
 	}

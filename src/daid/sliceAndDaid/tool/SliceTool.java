@@ -43,8 +43,11 @@ public class SliceTool
 		{
 			layers.add(new Layer(i, modelMin.x, modelMin.y, modelMax.x, modelMax.y));
 		}
+		int n = 0;
 		for (Triangle t : model.triangles)
 		{
+			Logger.setProgress(n++, model.triangles.size());
+			
 			double zMin = t.point[0].z;
 			double zMax = t.point[0].z;
 			if (t.point[1].z < zMin)
@@ -66,9 +69,11 @@ public class SliceTool
 				}
 			}
 		}
+		
 		Logger.updateStatus("Optimizing layers");
 		for (int i = 0; i < layers.size(); i++)
 		{
+			Logger.setProgress(i, layers.size());
 			layers.get(i).optimize();
 		}
 		return layers;

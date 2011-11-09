@@ -3,6 +3,7 @@ package daid.sliceAndDaid;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Vector;
 
 import daid.sliceAndDaid.util.Logger;
@@ -16,25 +17,25 @@ public class Model
 	public Model(String filename) throws IOException
 	{
 		Logger.updateStatus("Loading: " + filename);
-		BufferedReader br = new BufferedReader(new FileReader(filename));
 		
 		if (filename.toLowerCase().endsWith(".stl"))
 		{
 			char[] buf = new char[5];
+			BufferedReader br = new BufferedReader(new FileReader(filename));
 			br.mark(5);
 			br.read(buf);
-			br.reset();
+			br.close();
 			String header = new String(buf);
+			
 			if (header.equals("solid"))
-				readAsciiSTL(br);
+				readAsciiSTL(filename);
 			else
-				readBinarySTL(br);
+				readBinarySTL(filename);
 		} else
 		{
 			new RuntimeException("Unknown model format: " + filename);
 		}
 		Logger.message("Triangle count: " + triangles.size());
-		br.close();
 	}
 	
 	public Vector3 getMin()
@@ -79,15 +80,41 @@ public class Model
 		return ret;
 	}
 	
-	private void readBinarySTL(BufferedReader br) throws IOException
+	private void readBinarySTL(String filename) throws IOException
 	{
-		char[] header = new char[80];
-		br.read(header);
-		throw new RuntimeException("Binary STL not yet implemented yet...");
+		RandomAccessFile raf = new RandomAccessFile(filename, "r");
+		byte[] header = new byte[80];
+		raf.read(header);
+		int triangleCount = Integer.reverseBytes(raf.readInt());
+		triangles = new Vector<Triangle>();
+		for (int i = 0; i < triangleCount; i++)
+		{
+			Logger.setProgress(i, triangleCount);
+			for (int j = 0; j < 3; j++)
+				raf.readFloat();
+			
+			Triangle t = new Triangle();
+			float x = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			float y = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			float z = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			t.point[0] = new Vector3(x, y, z);
+			x = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			y = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			z = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			t.point[1] = new Vector3(x, y, z);
+			x = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			y = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			z = Float.intBitsToFloat(Integer.reverseBytes(raf.readInt()));
+			t.point[2] = new Vector3(x, y, z);
+			raf.readShort();// flags
+			triangles.add(t);
+		}
+		System.out.println(getMin());
 	}
 	
-	private void readAsciiSTL(BufferedReader br) throws IOException
+	private void readAsciiSTL(String filename) throws IOException
 	{
+		BufferedReader br = new BufferedReader(new FileReader(filename));
 		String line;
 		int i = 0;
 		Vector3 normal = null;
@@ -110,7 +137,7 @@ public class Model
 				{
 					if (normal.vSize2() > 0.1 && nextTri.getNormal().dot(normal) < 0.5)
 					{
-						//Triangle winding order and normal don't point in the same direction...
+						// Triangle winding order and normal don't point in the same direction...
 						// Flip the triangle?
 					}
 					triangles.add(nextTri);
@@ -119,6 +146,7 @@ public class Model
 				}
 			}
 		}
+		br.close();
 	}
 	
 	public void center()

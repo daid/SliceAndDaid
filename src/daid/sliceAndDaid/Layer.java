@@ -12,9 +12,10 @@ public class Layer
 {
 	public int layerNr;
 	
-	public Vector<Segment2D> segmentList = new Vector<Segment2D>();
+	public Vector<Segment2D> modelSegmentList = new Vector<Segment2D>();
 	
 	public Segment2D pathStart;
+	public LayerPart skirt = null;
 	public LayerPart modelPart = new LayerPart(this);
 	public LayerPart[] outlinePart;
 	private AABBTree<Segment2D> modelSegmentTree = new AABBTree<Segment2D>();
@@ -30,19 +31,19 @@ public class Layer
 		if (segment.start.asGoodAsEqual(segment.end))
 			return;
 		modelSegmentTree.insert(segment);
-		segmentList.add(segment);
+		modelSegmentList.add(segment);
 	}
 	
 	private void removeModelSegment(Segment2D segment)
 	{
-		segmentList.remove(segment);
+		modelSegmentList.remove(segment);
 		modelSegmentTree.remove(segment);
 	}
 	
 	public boolean optimize()
 	{
 		// Link up the segments with start/ends, so polygons are created.
-		for (Segment2D s1 : segmentList)
+		for (Segment2D s1 : modelSegmentList)
 		{
 			if (s1.prev == null)
 			{
@@ -72,20 +73,20 @@ public class Layer
 			}
 		}
 		
-		for (Segment2D s : segmentList)
+		for (Segment2D s : modelSegmentList)
 		{
 			if (s.prev != null && s.prev.next != s)
 				throw new RuntimeException();
 			if (s.next != null && s.next.prev != s)
 				throw new RuntimeException();
-			if (s.next != null && !segmentList.contains(s.next))
+			if (s.next != null && !modelSegmentList.contains(s.next))
 				throw new RuntimeException();
-			if (s.prev != null && !segmentList.contains(s.prev))
+			if (s.prev != null && !modelSegmentList.contains(s.prev))
 				throw new RuntimeException();
 		}
 		
 		boolean manifoldErrorReported = false;
-		HashSet<Segment2D> tmpSet = new HashSet<Segment2D>(segmentList);
+		HashSet<Segment2D> tmpSet = new HashSet<Segment2D>(modelSegmentList);
 		while (tmpSet.size() > 0)
 		{
 			Segment2D start = tmpSet.iterator().next();

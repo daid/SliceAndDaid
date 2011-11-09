@@ -26,6 +26,7 @@ public class Segment2D extends AABBrect implements Iterable<Segment2D>
 	public Segment2D next, prev;
 	
 	public double lineWidth;
+	public double feedRate;
 	public int type;
 	
 	public Segment2D(int type, Vector2 start, Vector2 end)
@@ -141,7 +142,7 @@ public class Segment2D extends AABBrect implements Iterable<Segment2D>
 		double c = x12 * y34 - y12 * x34;
 		if (Math.abs(c) < 0.0001)
 		{
-			return end.add(other.start).div(2);
+			return null;
 		} else
 		{
 			double a = start.x * end.y - start.y * end.x;

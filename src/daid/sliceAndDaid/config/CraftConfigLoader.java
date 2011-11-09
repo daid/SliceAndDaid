@@ -70,15 +70,29 @@ public class CraftConfigLoader
 			f = c.getField(key);
 			if (f == null)
 				return;
+			Setting s = f.getAnnotation(Setting.class);
 			if (f.getType() == Double.TYPE)
 			{
-				f.setDouble(null, Double.parseDouble(value));
+				double v = Double.parseDouble(value);
+				if (s != null && v < s.minValue())
+					v = s.minValue();
+				if (s != null && v > s.maxValue())
+					v = s.maxValue();
+				f.setDouble(null, v);
 			} else if (f.getType() == Integer.TYPE)
 			{
-				f.setInt(null, Integer.parseInt(value));
+				int v = Integer.parseInt(value);
+				if (s != null && v < s.minValue())
+					v = (int) s.minValue();
+				if (s != null && v > s.maxValue())
+					v = (int) s.maxValue();
+				f.setInt(null, v);
+			} else if (f.getType() == Boolean.TYPE)
+			{
+				f.setBoolean(null, Boolean.parseBoolean(value));
 			} else if (f.getType() == String.class)
 			{
-				f.set(null, value);
+				f.set(null, value.toString().replace("\\n", "\n"));
 			} else
 			{
 				throw new RuntimeException("Unknown config type: " + f.getType());
@@ -121,7 +135,7 @@ public class CraftConfigLoader
 					continue;
 				try
 				{
-					bw.write(f.getName() + "=" + f.get(null).toString() + "\n");
+					bw.write(f.getName() + "=" + f.get(null).toString().replace("\n", "\\n") + "\n");
 				} catch (IllegalArgumentException e)
 				{
 					e.printStackTrace();
