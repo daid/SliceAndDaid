@@ -119,7 +119,7 @@ public class SliceAndDaidMain
 			
 			for (String line : CraftConfig.startGCode.split("\n"))
 				gcodeFile.write(line);
-			gcodeFile.write("M101; extruder on (to get skeinlayer working)");
+			//gcodeFile.write("M101; extruder on (to get skeinlayer working)");
 			
 			for (int i = 0; i < layers.size(); i++)
 			{
@@ -127,7 +127,7 @@ public class SliceAndDaidMain
 				new GCodeTool(layers.get(i), gcodeFile).generateGCode();
 			}
 			
-			gcodeFile.write("M103; extruder off (to get skeinlayer working)");
+			//gcodeFile.write("M103; extruder off (to get skeinlayer working)");
 			for (String line : CraftConfig.endGCode.split("\n"))
 				gcodeFile.write(line);
 			gcodeFile.close();
