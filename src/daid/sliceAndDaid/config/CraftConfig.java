@@ -114,7 +114,7 @@ public class CraftConfig
 
 	@Setting(level = Setting.LEVEL_HIDDEN)
 	public static String endGCode = "G1 X-200 Y-200; Move the X/Y away from the printed object\n" +
-		"M104 S0; Turn off the extruder temperature\n";
+		"M104 S0; Turn off the extruder temperature";
 
 	@Setting(level = Setting.LEVEL_HIDDEN,
 			minValue = Setting.LEVEL_STARTER, maxValue = Setting.LEVEL_KITCHENSINK)

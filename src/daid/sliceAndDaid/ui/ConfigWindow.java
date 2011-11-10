@@ -3,11 +3,14 @@ package daid.sliceAndDaid.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Vector;
@@ -59,8 +62,23 @@ public class ConfigWindow extends JFrame
 		this.configSettingsPanel = new JPanel(new GridBagLayout());
 		this.actionPanel = new JPanel(new GridBagLayout());
 		
-		JTextArea startCodeTextArea = new JTextArea();
-		JTextArea endCodeTextArea = new JTextArea();
+		final JTextArea startCodeTextArea = new JTextArea(CraftConfig.startGCode);
+		final JTextArea endCodeTextArea = new JTextArea(CraftConfig.endGCode);
+		startCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		endCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		
+		startCodeTextArea.addFocusListener(new FocusAdapter(){
+			public void focusLost(FocusEvent e)
+			{
+				CraftConfig.startGCode = startCodeTextArea.getText();
+				CraftConfigLoader.saveConfig(null);
+			}});
+		endCodeTextArea.addFocusListener(new FocusAdapter(){
+			public void focusLost(FocusEvent e)
+			{
+				CraftConfig.endGCode = endCodeTextArea.getText();
+				CraftConfigLoader.saveConfig(null);
+			}});
 		
 		tabbedPane.addTab("Settings", this.configSettingsPanel);
 		tabbedPane.addTab("Start GCode", new JScrollPane(startCodeTextArea));

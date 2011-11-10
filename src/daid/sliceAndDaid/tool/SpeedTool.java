@@ -30,7 +30,7 @@ public class SpeedTool
 		
 		if (layerTime < CraftConfig.minLayerTime)
 		{
-			double multiply = CraftConfig.minLayerTime / layerTime;
+			double multiply = layerTime / CraftConfig.minLayerTime;
 			for (Segment2D s = layer.pathStart; s != null; s = s.next)
 			{
 				s.feedRate *= multiply;
