@@ -47,7 +47,7 @@ public class PreviewFrame extends JFrame
 			{
 				drawSegment(g, s);
 			}
-			for (Segment2D s : layers.get(showLayer).pathStart)
+			for (Segment2D s = layers.get(showLayer).pathStart; s != null; s = s.next)
 			{
 				drawSegment(g, s);
 			}

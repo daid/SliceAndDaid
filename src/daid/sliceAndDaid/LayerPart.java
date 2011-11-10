@@ -8,7 +8,7 @@ import daid.sliceAndDaid.util.AABBrect;
 public class LayerPart
 {
 	private Layer layer;
-	public Vector<Segment2D> polygons = new Vector<Segment2D>();
+	public Vector<Polygon> polygons = new Vector<Polygon>();
 	public AABBTree<Segment2D> tree = new AABBTree<Segment2D>();
 	
 	public LayerPart(Layer layer)
@@ -21,21 +21,18 @@ public class LayerPart
 		this.layer = layerPart.layer;
 	}
 	
-	public Segment2D getLargestPolygon()
+	public Polygon getLargestPolygon()
 	{
-		Segment2D largestPoly = null;
+		Polygon largestPoly = null;
 		double largestPolySize = 0;
-		for (Segment2D start : polygons)
+		for (Polygon poly : polygons)
 		{
-			AABBrect polygonRect = new AABBrect(start);
-			for (Segment2D s : start)
-			{
-				polygonRect.addAABB(s);
-			}
+			AABBrect polygonRect = poly.getAABB();
+			
 			if (polygonRect.getPerimeter() > largestPolySize)
 			{
 				largestPolySize = polygonRect.getPerimeter();
-				largestPoly = start;
+				largestPoly = poly;
 			}
 		}
 		return largestPoly;
@@ -53,7 +50,7 @@ public class LayerPart
 	 */
 	public LayerPart makeConvex()
 	{
-		Segment2D poly = getLargestPolygon();
+		Polygon poly = getLargestPolygon();
 		LayerPart ret = new LayerPart(this);
 
 		Segment2D first = null;
@@ -74,7 +71,7 @@ public class LayerPart
 		}
 		first.prev = prev;
 		prev.next = first;
-		ret.polygons.add(first);
+		ret.polygons.add(new Polygon(first));
 		
 		return ret;
 	}

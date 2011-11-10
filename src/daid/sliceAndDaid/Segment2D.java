@@ -1,18 +1,12 @@
 package daid.sliceAndDaid;
 
-import java.util.Iterator;
-
 import daid.sliceAndDaid.util.AABBrect;
 import daid.sliceAndDaid.util.Vector2;
 
 /**
  * Segment2D represents a line in 2D space.
- * 
- * It also knows about it's previous and next line segment. This caused more code to creep into this
- * class, and now it is also used to manage segment loops, sortof. It's kinda messy, but works for
- * now.
  */
-public class Segment2D extends AABBrect implements Iterable<Segment2D>
+public class Segment2D extends AABBrect
 {
 	public final static int TYPE_MODEL_SLICE = 0;
 	public final static int TYPE_PERIMETER = 1;
@@ -72,63 +66,9 @@ public class Segment2D extends AABBrect implements Iterable<Segment2D>
 		updateAABB(start, end, 1.0);
 	}
 	
-	/**
-	 * Get the closest segment in this segment loop
-	 */
-	public Segment2D closestTo(Vector2 p)
-	{
-		Segment2D best = this;
-		double bestDist = 99999;
-		for (Segment2D s : this)
-		{
-			if (s.start.sub(p).vSize2() < bestDist)
-			{
-				bestDist = s.start.sub(p).vSize2();
-				best = s;
-			}
-		}
-		return best;
-	}
-	
 	public String toString()
 	{
 		return "Segment:" + start + " " + end;
-	}
-	
-	public Iterator<Segment2D> iterator()
-	{
-		return new Segment2DIterator(this);
-	}
-	
-	private class Segment2DIterator implements Iterator<Segment2D>
-	{
-		private Segment2D start;
-		private Segment2D next;
-		
-		public Segment2DIterator(Segment2D start)
-		{
-			this.start = start;
-			this.next = start;
-		}
-		
-		public boolean hasNext()
-		{
-			return next != null;
-		}
-		
-		public Segment2D next()
-		{
-			Segment2D ret = next;
-			next = next.next;
-			if (next == start)
-				next = null;
-			return ret;
-		}
-		
-		public void remove()
-		{
-			throw new UnsupportedOperationException();
-		}
 	}
 	
 	public Vector2 getIntersectionPoint(Segment2D other)

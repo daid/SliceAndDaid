@@ -1,6 +1,7 @@
 package daid.sliceAndDaid.tool;
 
 import daid.sliceAndDaid.LayerPart;
+import daid.sliceAndDaid.Polygon;
 import daid.sliceAndDaid.Segment2D;
 import daid.sliceAndDaid.config.CraftConfig;
 import daid.sliceAndDaid.util.Vector2;
@@ -22,11 +23,11 @@ public class PerimeterTool
 	public LayerPart createPerimeter()
 	{
 		LayerPart ret = new LayerPart(layerPart);
-		for (Segment2D segStart : layerPart.polygons)
+		for (Polygon poly : layerPart.polygons)
 		{
 			Segment2D prev = null;
 			Segment2D first = null;
-			for (Segment2D s : segStart)
+			for (Segment2D s : poly)
 			{
 				Vector2 start = s.start.sub(s.normal.mul(distance));
 				Vector2 end = s.end.sub(s.normal.mul(distance));
@@ -45,7 +46,7 @@ public class PerimeterTool
 				prev = newSeg;
 			}
 			linkUp(ret, prev, first);
-			ret.polygons.add(first);
+			ret.polygons.add(new Polygon(first));
 		}
 		return ret;
 	}

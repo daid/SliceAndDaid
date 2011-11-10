@@ -3,6 +3,7 @@ package daid.sliceAndDaid.tool;
 import java.util.Vector;
 
 import daid.sliceAndDaid.Layer;
+import daid.sliceAndDaid.Polygon;
 import daid.sliceAndDaid.Segment2D;
 import daid.sliceAndDaid.util.Vector2;
 
@@ -34,34 +35,34 @@ public class PathTool
 		for (int i = 0; i < layer.outlinePart.length; i++)
 		{
 			// Find the largest polygon. So we start with the biggest outline first.
-			Segment2D next = layer.outlinePart[i].getLargestPolygon();
+			Polygon nextPoly = layer.outlinePart[i].getLargestPolygon();
 			
-			Vector<Segment2D> polys = new Vector<Segment2D>(layer.outlinePart[i].polygons);
-			polys.remove(next);
-			polys.add(0, next);
+			Vector<Polygon> polys = new Vector<Polygon>(layer.outlinePart[i].polygons);
+			polys.remove(nextPoly);
+			polys.add(0, nextPoly);
 			
 			while (polys.size() > 0)
 			{
-				next = polys.get(0);
+				nextPoly = polys.get(0);
 				if (prev != null)
 				{
 					for (int n = 0; n < polys.size(); n++)
 					{
-						if (polys.get(n).getAABBDist(prev) < next.getAABBDist(prev))
-							next = polys.get(n);
+						if (polys.get(n).getAABB().getAABBDist(prev) < nextPoly.getAABB().getAABBDist(prev))
+							nextPoly = polys.get(n);
 					}
 				}
-				polys.remove(next);
+				polys.remove(nextPoly);
 				if (prev == null)
 				{
-					next = next.closestTo(bestStartPoint);
-					layer.pathStart = next;
-					prev = next.prev;
+					Segment2D startSegment = nextPoly.closestTo(bestStartPoint);
+					layer.pathStart = startSegment;
+					prev = nextPoly.cutPoly(startSegment);
 				} else
 				{
-					next = next.closestTo(prev.end);
-					Segment2D newPrev = next.prev;
-					new Segment2D(Segment2D.TYPE_MOVE, prev, next);
+					Segment2D startSegment = nextPoly.closestTo(prev.end);
+					Segment2D newPrev = nextPoly.cutPoly(startSegment);
+					new Segment2D(Segment2D.TYPE_MOVE, prev, startSegment);
 					prev = newPrev;
 				}
 			}

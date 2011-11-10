@@ -106,11 +106,12 @@ public class Layer
 			}
 			if (manifold)
 			{
-				for (Segment2D s : start)
+				Polygon poly = new Polygon(start);
+				for (Segment2D s : poly)
 				{
 					tmpSet.remove(s);
 				}
-				addModelPolygon(start);
+				addModelPolygon(poly);
 			} else
 			{
 				if (!manifoldErrorReported)
@@ -135,25 +136,19 @@ public class Layer
 		return manifoldErrorReported;
 	}
 	
-	private void addModelPolygon(Segment2D start)
+	private void addModelPolygon(Polygon poly)
 	{
-		for (Segment2D s = start.next; s != start; s = s.next)
+		for (Segment2D s : poly)
 		{
 			if (s.normal.dot(s.next.normal) > CraftConfig.joinMinCosAngle)
 			{
-				removeModelSegment(s.next);
-				if (s.next == start)
-					start = s.next.next;
-				
-				modelSegmentTree.remove(s);
-				s.update(s.start, s.next.end);
-				modelSegmentTree.insert(s);
-				s.next = s.next.next;
-				s.next.prev = s;
-				if (s.prev != start)
-					s = s.prev;
+				removeModelSegment(s);
+				Segment2D next = s.next;
+				modelSegmentTree.remove(next);
+				poly.removeEnd(s);
+				modelSegmentTree.insert(next);
 			}
 		}
-		modelPart.polygons.add(start);
+		modelPart.polygons.add(poly);
 	}
 }
