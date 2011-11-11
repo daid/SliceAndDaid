@@ -13,13 +13,13 @@ public class PerimeterTool
 {
 	private LayerPart layerPart;
 	private double distance;
-	
+
 	public PerimeterTool(LayerPart layerPart, double distance)
 	{
 		this.layerPart = layerPart;
 		this.distance = distance;
 	}
-	
+
 	public LayerPart createPerimeter()
 	{
 		LayerPart ret = new LayerPart(layerPart);
@@ -34,7 +34,7 @@ public class PerimeterTool
 				Segment2D newSeg = new Segment2D(Segment2D.TYPE_PERIMETER, start, end);
 				newSeg.lineWidth = CraftConfig.perimeterWidth;
 				ret.add(newSeg);
-				
+
 				if (prev == null)
 				{
 					first = newSeg;
@@ -42,19 +42,41 @@ public class PerimeterTool
 				{
 					linkUp(ret, prev, newSeg);
 				}
-				
+
 				prev = newSeg;
 			}
-			linkUp(ret, prev, first);
-			ret.polygons.add(new Polygon(first));
+
+			if (first != null)
+			{
+				linkUp(ret, prev, first);
+
+				Polygon newPoly = new Polygon(first);
+				for (Segment2D s : newPoly)
+				{
+					if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength * CraftConfig.minSegmentLength)
+					{
+						ret.tree.remove(s);
+						Segment2D next = s.next;
+						ret.tree.remove(next);
+						newPoly.remove(s);
+						ret.tree.insert(next);
+					}
+				}
+				newPoly.check();
+				ret.polygons.add(newPoly);
+			}
 		}
+		/*
+		 * for (Polygon poly : ret.polygons) { for (Segment2D s : poly) { Vector2 p = s.prev.getCollisionPoint(s.next); if (p != null) { Segment2D prev =
+		 * s.prev; Segment2D next = s.next; layerPart.tree.remove(s); layerPart.tree.remove(prev); layerPart.tree.remove(next); prev.update(prev.start, p);
+		 * next.update(p, next.end); poly.remove(s); layerPart.tree.insert(prev); layerPart.tree.insert(next); } } }
+		 */
 		return ret;
 	}
-	
+
 	/**
-	 * Link up the 2 segments to each other, this will extend the segment so that the 2 segments
-	 * cross, unless the extend it longer then the 'distance', at which point an extra segment is
-	 * created. This will help with very high angle corners.
+	 * Link up the 2 segments to each other, this will extend the segment so that the 2 segments cross, unless the extend it longer then the 'distance', at
+	 * which point an extra segment is created. This will help with very high angle corners.
 	 */
 	private void linkUp(LayerPart ret, Segment2D prev, Segment2D next)
 	{
@@ -67,7 +89,7 @@ public class PerimeterTool
 		{
 			Vector2 p1 = prev.end.add(p.sub(prev.end).normal().mul(distance));
 			Vector2 p2 = next.start.add(p.sub(next.start).normal().mul(distance));
-			
+
 			prev.end = p1;
 			next.start = p2;
 			Segment2D newSeg = new Segment2D(Segment2D.TYPE_PERIMETER, p1, p2);
@@ -81,7 +103,7 @@ public class PerimeterTool
 		{
 			prev.end = p;
 			next.start = p;
-			
+
 			prev.next = next;
 			next.prev = prev;
 		}

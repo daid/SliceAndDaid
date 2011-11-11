@@ -57,18 +57,16 @@ public class Polygon implements Iterable<Segment2D>
 	
 	public Iterator<Segment2D> iterator()
 	{
-		return new Segment2DIterator(first);
+		return new Segment2DIterator();
 	}
 	
 	private class Segment2DIterator implements Iterator<Segment2D>
 	{
-		private Segment2D start;
 		private Segment2D next;
 		
-		public Segment2DIterator(Segment2D start)
+		public Segment2DIterator()
 		{
-			this.start = start;
-			this.next = start;
+			this.next = first;
 		}
 		
 		public boolean hasNext()
@@ -80,7 +78,7 @@ public class Polygon implements Iterable<Segment2D>
 		{
 			Segment2D ret = next;
 			next = next.next;
-			if (next == start)
+			if (next == first)
 				next = null;
 			return ret;
 		}
@@ -95,10 +93,19 @@ public class Polygon implements Iterable<Segment2D>
 	 * removeEnd removes this segment from the segment list, and links up the next segment to the
 	 * previous. Removing 1 point in the polygon. The point removed is the endpoint of this segment.
 	 */
-	public void removeEnd(Segment2D s)
+	public void remove(Segment2D s)
 	{
+		if (s == first)
+		{
+			first = s.next;
+			if (first == s)
+				first = null;
+		}
+		
 		if (s.next == null)
 		{
+			if (endToFirst)
+				throw new RuntimeException();
 			// Remove 's' from the linked list.
 			s.prev = null;
 		}else{
@@ -124,5 +131,24 @@ public class Polygon implements Iterable<Segment2D>
 		ret.next = null;
 		s.prev = null;
 		return ret;
+	}
+	
+	public void check()
+	{
+		if (first == null)
+			return;
+		if (endToFirst)
+		{
+			if( first.prev == null)
+				throw new RuntimeException();
+			for(Segment2D s = first.next; s != first; s = s.next)
+			{
+				if (s == null)
+					throw new RuntimeException();
+			}
+		}else{
+			if( first.prev != null)
+				throw new RuntimeException();
+		}
 	}
 }

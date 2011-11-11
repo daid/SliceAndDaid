@@ -126,7 +126,7 @@ public class PreviewFrame extends JFrame
 				viewPanel.repaint();
 			}
 		});
-		final JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.drawScale, 1.0, 20.0, 1.0));
+		final JSpinner zoomSpinner = new JSpinner(new SpinnerNumberModel(viewPanel.drawScale, 1.0, 200.0, 1.0));
 		zoomSpinner.addChangeListener(new ChangeListener()
 		{
 			public void stateChanged(ChangeEvent e)

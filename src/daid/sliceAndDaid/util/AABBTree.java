@@ -19,6 +19,8 @@ public class AABBTree<T extends AABBrect>
 		public TreeNode(AABBrect aabb)
 		{
 			this.aabb = aabb;
+			if (aabb.node != null)
+				throw new RuntimeException();
 			aabb.node = this;
 		}
 		

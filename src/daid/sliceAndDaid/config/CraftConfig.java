@@ -94,6 +94,10 @@ public class CraftConfig
 			title = "Cap perimeter corners",
 			description = "Cap off tight corners in the perimeter.")
 	public static boolean perimeterCap = true;
+	@Setting(level = Setting.LEVEL_KITCHENSINK,
+			title = "Minimum segment length (mm)",
+			description = "Remove segments shorter then this length.")
+	public static double minSegmentLength = 0.5;
 
 	@Setting(level = Setting.LEVEL_ADVANCED,
 			title = "GCode format",
@@ -105,7 +109,8 @@ public class CraftConfig
 	public static int gcodeType = GCODE_COMPACT;
 
 	@Setting(level = Setting.LEVEL_HIDDEN)
-	public static String startGCode = "G28; Move to origin\n" +
+	public static String startGCode = "M98 E926; Set the number of steps per E mm\n" +
+		"G28; Move to origin\n" +
 		"G92 X-105 Y-105 Z0; Put the 'origin' on the center of the platform\n" + 
 		"G1 Z5 F180; Move the head up a bit\n" + 
 		"G1 X0 Y0; Move to the center of the platfrom\n"+

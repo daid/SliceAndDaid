@@ -48,48 +48,52 @@ import daid.sliceAndDaid.util.Logger;
 public class ConfigWindow extends JFrame
 {
 	private static final long serialVersionUID = 1L;
-	
+
 	private JPanel configSettingsPanel;
 	private JPanel actionPanel;
-	
+
 	public ConfigWindow()
 	{
 		this.setTitle("SliceAndDaid - " + CraftConfig.VERSION);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		JTabbedPane tabbedPane = new JTabbedPane();
 		this.configSettingsPanel = new JPanel(new GridBagLayout());
 		this.actionPanel = new JPanel(new GridBagLayout());
-		
+
 		final JTextArea startCodeTextArea = new JTextArea(CraftConfig.startGCode);
 		final JTextArea endCodeTextArea = new JTextArea(CraftConfig.endGCode);
 		startCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		endCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		
-		startCodeTextArea.addFocusListener(new FocusAdapter(){
+
+		startCodeTextArea.addFocusListener(new FocusAdapter()
+		{
 			public void focusLost(FocusEvent e)
 			{
 				CraftConfig.startGCode = startCodeTextArea.getText();
 				CraftConfigLoader.saveConfig(null);
-			}});
-		endCodeTextArea.addFocusListener(new FocusAdapter(){
+			}
+		});
+		endCodeTextArea.addFocusListener(new FocusAdapter()
+		{
 			public void focusLost(FocusEvent e)
 			{
 				CraftConfig.endGCode = endCodeTextArea.getText();
 				CraftConfigLoader.saveConfig(null);
-			}});
-		
+			}
+		});
+
 		tabbedPane.addTab("Settings", this.configSettingsPanel);
 		tabbedPane.addTab("Start GCode", new JScrollPane(startCodeTextArea));
 		tabbedPane.addTab("End GCode", new JScrollPane(endCodeTextArea));
-		
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(1, 1, 1, 1);
 		c.fill = GridBagConstraints.HORIZONTAL;
-		
+
 		JButton sliceButton = new JButton("Slice");
 		sliceButton.addActionListener(new ActionListener()
 		{
@@ -104,12 +108,12 @@ public class ConfigWindow extends JFrame
 							return true;
 						return f.getName().endsWith(".stl");
 					}
-					
+
 					public String getDescription()
 					{
 						return null;
 					}
-					
+
 				});
 				fc.setSelectedFile(new File(CraftConfig.lastSlicedFile));
 				int returnVal = fc.showOpenDialog(null);
@@ -129,7 +133,7 @@ public class ConfigWindow extends JFrame
 			}
 		});
 		this.actionPanel.add(sliceButton, c);
-		
+
 		final JComboBox levelSelect = new JComboBox(new String[] { "Starter", "Normal", "Advance", "+Kitchen sink" });
 		levelSelect.addActionListener(new ActionListener()
 		{
@@ -142,18 +146,18 @@ public class ConfigWindow extends JFrame
 		});
 		levelSelect.setSelectedIndex(CraftConfig.showLevel);
 		this.actionPanel.add(levelSelect, c);
-		
+
 		this.add(tabbedPane);
 		this.add(actionPanel, BorderLayout.SOUTH);
-		
+
 		createConfigFields(CraftConfig.showLevel);
 		this.setVisible(true);
 	}
-	
+
 	private void createConfigFields(int minShowLevel)
 	{
 		configSettingsPanel.removeAll();
-		
+
 		Class<CraftConfig> configClass = CraftConfig.class;
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
@@ -166,27 +170,27 @@ public class ConfigWindow extends JFrame
 		{
 			final Setting s = f.getAnnotation(Setting.class);
 			Object obj = null;
-			
+
 			try
 			{
 				obj = f.get(null).toString();
-				
+
 				if (s == null || obj == null)
 					continue;
 				if (s.level() > minShowLevel)
 					continue;
 				final Component comp = getSwingComponentForField(f, s);
-				
+
 				if (comp == null)
 					continue;
-				
+
 				final JLabel label = new JLabel(s.title() + ":");
 				JButton helpButton = null;
-				
+
 				if (!s.description().equals(""))
 				{
 					helpButton = new JButton("?");
-					helpButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+					helpButton.setMargin(new java.awt.Insets(0, 1, 0, 1));
 					helpButton.addActionListener(new ActionListener()
 					{
 						public void actionPerformed(ActionEvent e)
@@ -195,14 +199,17 @@ public class ConfigWindow extends JFrame
 						}
 					});
 				}
-				
+
 				comp.setPreferredSize(new Dimension(100, 25));
+				c.weightx = 0;
 				c.ipadx = 0;
 				c.gridx = 0;
 				configSettingsPanel.add(helpButton, c);
+				c.weightx = 1;
 				c.ipadx = 10;
 				c.gridx = 1;
 				configSettingsPanel.add(label, c);
+				c.weightx = 1;
 				c.gridx = 2;
 				configSettingsPanel.add(comp, c);
 				c.gridy++;
@@ -214,11 +221,11 @@ public class ConfigWindow extends JFrame
 				e.printStackTrace();
 			}
 		}
-		
+
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
-	
+
 	private Component getSwingComponentForField(final Field f, Setting s) throws IllegalArgumentException, IllegalAccessException
 	{
 		if (f.getType() == Integer.TYPE)

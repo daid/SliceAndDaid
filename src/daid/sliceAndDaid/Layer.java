@@ -11,21 +11,21 @@ import daid.sliceAndDaid.util.Logger;
 public class Layer
 {
 	public int layerNr;
-	
+
 	public Vector<Segment2D> modelSegmentList = new Vector<Segment2D>();
-	
+
 	public Segment2D pathStart;
 	public LayerPart skirt = null;
 	public LayerPart modelPart = new LayerPart(this);
 	public LayerPart[] outlinePart;
 	private AABBTree<Segment2D> modelSegmentTree = new AABBTree<Segment2D>();
-	
+
 	public Layer(int layerNr, double minX, double minY, double maxX, double maxY)
 	{
 		this.layerNr = layerNr;
 		this.outlinePart = new LayerPart[CraftConfig.perimeterCount];
 	}
-	
+
 	public void addModelSegment(Segment2D segment)
 	{
 		if (segment.start.asGoodAsEqual(segment.end))
@@ -33,13 +33,13 @@ public class Layer
 		modelSegmentTree.insert(segment);
 		modelSegmentList.add(segment);
 	}
-	
+
 	private void removeModelSegment(Segment2D segment)
 	{
 		modelSegmentList.remove(segment);
 		modelSegmentTree.remove(segment);
 	}
-	
+
 	public boolean optimize()
 	{
 		// Link up the segments with start/ends, so polygons are created.
@@ -47,32 +47,46 @@ public class Layer
 		{
 			if (s1.prev == null)
 			{
+				Segment2D best = null;
+				double bestDist2 = 0.01;
 				for (Segment2D s2 : modelSegmentTree.query(new AABBrect(s1.start, s1.start)))
 				{
-					if (s1 != s2 && s1.start.asGoodAsEqual(s2.end) && s2.next == null)
+					if (s1 != s2 && s2.next == null && s1.start.asGoodAsEqual(s2.end) && s1.start.sub(s2.end).vSize2() < bestDist2)
 					{
-						s1.start = s2.end;
-						s1.prev = s2;
-						s2.next = s1;
+						best = s2;
+						bestDist2 = s1.start.sub(s2.end).vSize2();
 						break;
 					}
+				}
+				if (best != null)
+				{
+					s1.start = best.end;
+					s1.prev = best;
+					best.next = s1;
 				}
 			}
 			if (s1.next == null)
 			{
+				Segment2D best = null;
+				double bestDist2 = 0.01;
 				for (Segment2D s2 : modelSegmentTree.query(new AABBrect(s1.end, s1.end)))
 				{
-					if (s1 != s2 && s1.end.asGoodAsEqual(s2.start) && s2.prev == null)
+					if (s1 != s2 && s2.prev == null && s1.end.asGoodAsEqual(s2.start) && s1.end.sub(s2.start).vSize2() < bestDist2)
 					{
-						s1.end = s2.start;
-						s1.next = s2;
-						s2.prev = s1;
+						best = s2;
+						bestDist2 = s1.end.sub(s2.start).vSize2();
 						break;
 					}
 				}
+				if (best != null)
+				{
+					s1.end = best.start;
+					s1.next = best;
+					best.prev = s1;
+				}
 			}
 		}
-		
+
 		for (Segment2D s : modelSegmentList)
 		{
 			if (s.prev != null && s.prev.next != s)
@@ -84,7 +98,7 @@ public class Layer
 			if (s.prev != null && !modelSegmentList.contains(s.prev))
 				throw new RuntimeException();
 		}
-		
+
 		boolean manifoldErrorReported = false;
 		HashSet<Segment2D> tmpSet = new HashSet<Segment2D>(modelSegmentList);
 		while (tmpSet.size() > 0)
@@ -135,7 +149,7 @@ public class Layer
 		}
 		return manifoldErrorReported;
 	}
-	
+
 	private void addModelPolygon(Polygon poly)
 	{
 		for (Segment2D s : poly)
@@ -145,7 +159,18 @@ public class Layer
 				removeModelSegment(s);
 				Segment2D next = s.next;
 				modelSegmentTree.remove(next);
-				poly.removeEnd(s);
+				poly.remove(s);
+				modelSegmentTree.insert(next);
+			}
+		}
+		for (Segment2D s : poly)
+		{
+			if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength * CraftConfig.minSegmentLength)
+			{
+				removeModelSegment(s);
+				Segment2D next = s.next;
+				modelSegmentTree.remove(next);
+				poly.remove(s);
 				modelSegmentTree.insert(next);
 			}
 		}
