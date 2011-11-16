@@ -1,6 +1,7 @@
 package daid.sliceAndDaid.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -13,14 +14,19 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -59,7 +65,8 @@ public class ConfigWindow extends JFrame
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JTabbedPane tabbedPane = new JTabbedPane();
-		this.configSettingsPanel = new JPanel(new GridBagLayout());
+		this.configSettingsPanel = new JPanel();
+		this.configSettingsPanel.setLayout(new BoxLayout(this.configSettingsPanel, BoxLayout.Y_AXIS));
 		this.actionPanel = new JPanel(new GridBagLayout());
 		
 		final JTextArea startCodeTextArea = new JTextArea(CraftConfig.startGCode);
@@ -67,18 +74,22 @@ public class ConfigWindow extends JFrame
 		startCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		endCodeTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		
-		startCodeTextArea.addFocusListener(new FocusAdapter(){
+		startCodeTextArea.addFocusListener(new FocusAdapter()
+		{
 			public void focusLost(FocusEvent e)
 			{
 				CraftConfig.startGCode = startCodeTextArea.getText();
 				CraftConfigLoader.saveConfig(null);
-			}});
-		endCodeTextArea.addFocusListener(new FocusAdapter(){
+			}
+		});
+		endCodeTextArea.addFocusListener(new FocusAdapter()
+		{
 			public void focusLost(FocusEvent e)
 			{
 				CraftConfig.endGCode = endCodeTextArea.getText();
 				CraftConfigLoader.saveConfig(null);
-			}});
+			}
+		});
 		
 		tabbedPane.addTab("Settings", this.configSettingsPanel);
 		tabbedPane.addTab("Start GCode", new JScrollPane(startCodeTextArea));
@@ -136,33 +147,79 @@ public class ConfigWindow extends JFrame
 			public void actionPerformed(ActionEvent e)
 			{
 				CraftConfig.showLevel = levelSelect.getSelectedIndex();
+				Color buttonBgColor = null;
+				for (Component c : levelSelect.getComponents())
+				{
+					if (c instanceof JButton)
+						buttonBgColor = ((JButton) c).getBackground();
+				}
+				levelSelect.setBackground(levelColor(CraftConfig.showLevel));
+				for (Component c : levelSelect.getComponents())
+				{
+					if (c instanceof JButton)
+						((JButton) c).setBackground(buttonBgColor);
+				}
 				CraftConfigLoader.saveConfig(null);
-				createConfigFields(CraftConfig.showLevel);
+				createConfigFields();
 			}
 		});
 		levelSelect.setSelectedIndex(CraftConfig.showLevel);
+		levelSelect.setRenderer(new DefaultListCellRenderer()
+		{
+			private static final long serialVersionUID = 1L;
+			
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+			{
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if (isSelected)
+					this.setBackground(levelColor(index).darker());
+				else
+					this.setBackground(levelColor(index));
+				return this;
+			}
+		});
 		this.actionPanel.add(levelSelect, c);
 		
 		this.add(tabbedPane);
 		this.add(actionPanel, BorderLayout.SOUTH);
 		
-		createConfigFields(CraftConfig.showLevel);
+		createConfigFields();
 		this.setVisible(true);
 	}
 	
-	private void createConfigFields(int minShowLevel)
+	private void createConfigFields()
 	{
 		configSettingsPanel.removeAll();
 		
-		Class<CraftConfig> configClass = CraftConfig.class;
+		HashSet<String> doneGroups = new HashSet<String>();
+		
+		for (final Field f : CraftConfig.class.getFields())
+		{
+			final Setting s = f.getAnnotation(Setting.class);
+			if (s == null)
+				continue;
+			if (doneGroups.contains(s.group()))
+				continue;
+			doneGroups.add(s.group());
+			JPanel p = new JPanel(new GridBagLayout());
+			p.setBorder(BorderFactory.createTitledBorder(s.group()));
+			if (addConfigFields(p, s.group()) > 0)
+				configSettingsPanel.add(p);
+		}
+		
+		this.pack();
+		this.setLocationRelativeTo(null);
+	}
+	
+	private int addConfigFields(JPanel p, String groupName)
+	{
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridy = 0;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(1, 1, 1, 1);
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
 		c.weighty = 1;
-		for (final Field f : configClass.getFields())
+		for (final Field f : CraftConfig.class.getFields())
 		{
 			final Setting s = f.getAnnotation(Setting.class);
 			Object obj = null;
@@ -173,7 +230,9 @@ public class ConfigWindow extends JFrame
 				
 				if (s == null || obj == null)
 					continue;
-				if (s.level() > minShowLevel)
+				if (!s.group().equals(groupName))
+					continue;
+				if (s.level() > CraftConfig.showLevel)
 					continue;
 				final Component comp = getSwingComponentForField(f, s);
 				
@@ -194,17 +253,18 @@ public class ConfigWindow extends JFrame
 							JOptionPane.showMessageDialog(label, s.description());
 						}
 					});
+					helpButton.setBackground(levelColor(s.level()));
 				}
 				
 				comp.setPreferredSize(new Dimension(100, 25));
-				c.ipadx = 0;
+				c.weightx = 0;
 				c.gridx = 0;
-				configSettingsPanel.add(helpButton, c);
-				c.ipadx = 10;
+				p.add(helpButton, c);
+				c.weightx = 1;
 				c.gridx = 1;
-				configSettingsPanel.add(label, c);
+				p.add(label, c);
 				c.gridx = 2;
-				configSettingsPanel.add(comp, c);
+				p.add(comp, c);
 				c.gridy++;
 			} catch (IllegalArgumentException e)
 			{
@@ -214,9 +274,21 @@ public class ConfigWindow extends JFrame
 				e.printStackTrace();
 			}
 		}
-		
-		this.pack();
-		this.setLocationRelativeTo(null);
+		return c.gridy;
+	}
+	
+	private Color levelColor(int level)
+	{
+		switch (level)
+		{
+		case Setting.LEVEL_NORMAL:
+			return Color.ORANGE;
+		case Setting.LEVEL_ADVANCED:
+			return Color.YELLOW;
+		case Setting.LEVEL_KITCHENSINK:
+			return Color.RED;
+		}
+		return Color.WHITE;
 	}
 	
 	private Component getSwingComponentForField(final Field f, Setting s) throws IllegalArgumentException, IllegalAccessException

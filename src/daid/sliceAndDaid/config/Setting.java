@@ -26,4 +26,6 @@ public @interface Setting
 	public int level() default Setting.LEVEL_NORMAL;
 	
 	public String enumName() default "";
+	
+	public String group() default "";
 }
