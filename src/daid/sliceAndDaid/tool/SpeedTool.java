@@ -23,7 +23,9 @@ public class SpeedTool
 				s.feedRate = CraftConfig.travelSpeed;
 			} else
 			{
-				s.feedRate = CraftConfig.printSpeed;
+				s.feedRate = CraftConfig.layerZeroPrintSpeed + CraftConfig.layerPrintSpeedIncrease * layer.layerNr;
+				if (s.feedRate > CraftConfig.printSpeed)
+					s.feedRate = CraftConfig.printSpeed;
 			}
 			layerTime += s.start.sub(s.end).vSize() / s.feedRate;
 		}
