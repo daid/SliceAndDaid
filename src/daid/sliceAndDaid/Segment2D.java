@@ -16,12 +16,12 @@ public class Segment2D extends AABBrect
 
 	public Vector2 start;
 	public Vector2 end;
-	public Vector2 normal;
+	private Vector2 normal;
 	public Segment2D next, prev;
 
 	public double lineWidth;
 	public double feedRate;
-	public int type;
+	private int type;
 
 	public Segment2D(int type, Vector2 start, Vector2 end)
 	{
@@ -93,28 +93,29 @@ public class Segment2D extends AABBrect
 
 	public Vector2 getCollisionPoint(Segment2D other)
 	{
-		double x12 = start.x - end.x;
-		double x34 = other.start.x - other.end.x;
-		double y12 = start.y - end.y;
-		double y34 = other.start.y - other.end.y;
-
-		// Calculate the intersection of the 2 segments.
-		double c = x12 * y34 - y12 * x34;
-		if (Math.abs(c) < 0.0001)
-		{
+		Vector2 p = getIntersectionPoint(other);
+		if (p == null)
 			return null;
-		} else
+		if ((p.x >= start.x && p.x <= end.x) || (p.x >= end.x && p.x <= start.x))
 		{
-			double a = start.x * end.y - start.y * end.x;
-			double b = other.start.x * other.end.y - other.start.y * other.end.x;
-
-			Vector2 p = new Vector2((a * x34 - b * x12) / c, (a * y34 - b * y12) / c);
-			if ((p.x >= start.x && p.x <= end.x) || (p.x >= end.x && p.x <= start.x))
-			{
-				if ((p.y >= start.y && p.y <= end.y) || (p.y >= end.y && p.y <= start.y))
-					return p;
-			}
-			return null;
+			if ((p.y >= start.y && p.y <= end.y) || (p.y >= end.y && p.y <= start.y))
+				return p;
 		}
+		return null;
+	}
+	
+	public Vector2 getNormal()
+	{
+		return normal;
+	}
+	
+	public int getType()
+	{
+		return type;
+	}
+
+	public void setType(int type)
+	{
+		this.type = type;
 	}
 }

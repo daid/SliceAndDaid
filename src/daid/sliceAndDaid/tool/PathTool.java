@@ -10,37 +10,42 @@ import daid.sliceAndDaid.util.Vector2;
 /**
  * The path tool is the final tool run before the GCode is generated.
  * 
- * It takes all the separate lines and links those into a single large path, ready for GCode
- * generation.
+ * It takes all the separate lines and links those into a single large path, ready for GCode generation.
  */
 public class PathTool
 {
 	private Layer layer;
-	
+
 	public PathTool(Layer layer)
 	{
 		this.layer = layer;
 	}
-	
+
 	public void generatePath(Vector2 bestStartPoint)
 	{
 		Segment2D prev = null;
 		if (layer.skirt != null)
 		{
-			prev = layer.skirt.getLargestPolygon().closestTo(bestStartPoint);
-			layer.pathStart = prev;
-			prev = prev.prev;
+			Polygon poly = layer.skirt.getLargestPolygon();
+			if (poly != null)
+			{
+				prev = layer.skirt.getLargestPolygon().closestTo(bestStartPoint);
+				layer.pathStart = prev;
+				prev = prev.prev;
+			}
 		}
-		
+
 		for (int i = 0; i < layer.outlinePart.length; i++)
 		{
 			// Find the largest polygon. So we start with the biggest outline first.
 			Polygon nextPoly = layer.outlinePart[i].getLargestPolygon();
-			
-			Vector<Polygon> polys = new Vector<Polygon>(layer.outlinePart[i].polygons);
+			if (nextPoly == null)
+				return;
+
+			Vector<Polygon> polys = layer.outlinePart[i].getPolygonListClone();
 			polys.remove(nextPoly);
 			polys.add(0, nextPoly);
-			
+
 			while (polys.size() > 0)
 			{
 				nextPoly = polys.get(0);

@@ -124,8 +124,24 @@ public class ConfigWindow extends JFrame
 					{
 						public void run()
 						{
-							SliceAndDaidMain.sliceModel(fc.getSelectedFile().toString());
-							logWindow.dispose();
+							try
+							{
+								SliceAndDaidMain.sliceModel(fc.getSelectedFile().toString());
+								logWindow.dispose();
+							} catch (Exception e)
+							{
+								e.printStackTrace();
+								logWindow.dispose();
+								StringBuilder sb = new StringBuilder();
+								sb.append(e.toString());
+								sb.append("\n");
+								for(StackTraceElement el : e.getStackTrace())
+								{
+									sb.append(el.toString());
+									sb.append("\n");
+								}
+								JOptionPane.showMessageDialog(null, sb, "Exception", JOptionPane.ERROR_MESSAGE);
+							}
 						}
 					}).start();
 					ConfigWindow.this.dispose();

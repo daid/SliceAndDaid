@@ -1,14 +1,15 @@
 package daid.sliceAndDaid;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 import daid.sliceAndDaid.util.AABBTree;
 import daid.sliceAndDaid.util.AABBrect;
 
-public class LayerPart
+public class LayerPart implements Iterable<Polygon>
 {
 	private Layer layer;
-	public Vector<Polygon> polygons = new Vector<Polygon>();
+	private Vector<Polygon> polygons = new Vector<Polygon>();
 	public AABBTree<Segment2D> tree = new AABBTree<Segment2D>();
 	
 	public LayerPart(Layer layer)
@@ -43,6 +44,17 @@ public class LayerPart
 		tree.insert(newSeg);
 	}
 	
+	public void addPolygon(Polygon poly)
+	{
+		poly.check();
+		if (poly.empty())
+		{
+			System.out.println("E");
+			return;
+		}
+		polygons.add(poly);
+	}
+	
 	/**
 	 * makeConvex is used to generate a single convex polygon from the existing polygon set.
 	 * 
@@ -52,6 +64,8 @@ public class LayerPart
 	{
 		Polygon poly = getLargestPolygon();
 		LayerPart ret = new LayerPart(this);
+		if (poly == null)
+			return ret;
 
 		Segment2D first = null;
 		Segment2D prev = null;
@@ -74,5 +88,15 @@ public class LayerPart
 		ret.polygons.add(new Polygon(first));
 		
 		return ret;
+	}
+
+	public Iterator<Polygon> iterator()
+	{
+		return polygons.iterator();
+	}
+
+	public Vector<Polygon> getPolygonListClone()
+	{
+		return new Vector<Polygon>(polygons);
 	}
 }

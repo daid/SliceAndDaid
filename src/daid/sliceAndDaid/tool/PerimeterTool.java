@@ -23,14 +23,13 @@ public class PerimeterTool
 	public LayerPart createPerimeter()
 	{
 		LayerPart ret = new LayerPart(layerPart);
-		for (Polygon poly : layerPart.polygons)
+		for (Polygon poly : layerPart)
 		{
-			Segment2D prev = null;
-			Segment2D first = null;
+			Segment2D first = null, prev = null;
 			for (Segment2D s : poly)
 			{
-				Vector2 start = s.start.sub(s.normal.mul(distance));
-				Vector2 end = s.end.sub(s.normal.mul(distance));
+				Vector2 start = s.start.sub(s.getNormal().mul(distance));
+				Vector2 end = s.end.sub(s.getNormal().mul(distance));
 				Segment2D newSeg = new Segment2D(Segment2D.TYPE_PERIMETER, start, end);
 				newSeg.lineWidth = CraftConfig.perimeterWidth;
 				ret.add(newSeg);
@@ -49,28 +48,15 @@ public class PerimeterTool
 			if (first != null)
 			{
 				linkUp(ret, prev, first);
-
 				Polygon newPoly = new Polygon(first);
-				for (Segment2D s : newPoly)
-				{
-					if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength * CraftConfig.minSegmentLength)
-					{
-						ret.tree.remove(s);
-						Segment2D next = s.next;
-						ret.tree.remove(next);
-						newPoly.remove(s);
-						ret.tree.insert(next);
-					}
-				}
-				newPoly.check();
-				ret.polygons.add(newPoly);
+				/*
+				 * for (Segment2D s : newPoly) { if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength CraftConfig.minSegmentLength) {
+				 * ret.tree.remove(s); Segment2D next = s.next; ret.tree.remove(next); newPoly.remove(s); ret.tree.insert(next); } }
+				 */
+				ret.addPolygon(newPoly);
 			}
 		}
-		/*
-		 * for (Polygon poly : ret.polygons) { for (Segment2D s : poly) { Vector2 p = s.prev.getCollisionPoint(s.next); if (p != null) { Segment2D prev =
-		 * s.prev; Segment2D next = s.next; layerPart.tree.remove(s); layerPart.tree.remove(prev); layerPart.tree.remove(next); prev.update(prev.start, p);
-		 * next.update(p, next.end); poly.remove(s); layerPart.tree.insert(prev); layerPart.tree.insert(next); } } }
-		 */
+
 		return ret;
 	}
 

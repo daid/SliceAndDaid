@@ -41,7 +41,7 @@ public class Logger
 
 	public static void setProgress(int value, int max)
 	{
-		System.out.println(value + "/" + max);
+		// System.out.println(value + "/" + max);
 		for (LoggingInterface li : loggers)
 			li.setProgress(value, max);
 	}

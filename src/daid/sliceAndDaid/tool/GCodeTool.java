@@ -24,6 +24,8 @@ public class GCodeTool
 		
 		file.writeComment("LAYER:" + layer.layerNr);
 		file.writeMoveZ((double) (layer.layerNr + 1) * CraftConfig.layerHeight, CraftConfig.travelSpeed, "Move to layer: " + layer.layerNr);
+		if (layer.pathStart == null)
+			return;
 		file.writeMoveXY(layer.pathStart.start.x, layer.pathStart.start.y, CraftConfig.travelSpeed, "");
 		for (Segment2D s = layer.pathStart; s != null; s = s.next)
 		{

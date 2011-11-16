@@ -103,7 +103,8 @@ public class SliceAndDaidMain
 		{
 			Logger.setProgress(i, layers.size());
 			new PathTool(layers.get(i)).generatePath(startPoint);
-			startPoint = layers.get(i).pathStart.start;
+			if (layers.get(i).pathStart != null)
+				startPoint = layers.get(i).pathStart.start;
 		}
 		Logger.updateStatus("Setting speeds");
 		for (int i = 0; i < layers.size(); i++)

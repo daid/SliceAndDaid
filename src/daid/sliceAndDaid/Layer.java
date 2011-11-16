@@ -134,14 +134,14 @@ public class Layer
 				for (Segment2D s = start; s != null; s = s.next)
 				{
 					tmpSet.remove(s);
-					s.type = Segment2D.TYPE_ERROR;
+					s.setType(Segment2D.TYPE_ERROR);
 					if (s.next == start)
 						break;
 				}
 				for (Segment2D s = start; s != null; s = s.prev)
 				{
 					tmpSet.remove(s);
-					s.type = Segment2D.TYPE_ERROR;
+					s.setType(Segment2D.TYPE_ERROR);
 					if (s.prev == start)
 						break;
 				}
@@ -154,7 +154,7 @@ public class Layer
 	{
 		for (Segment2D s : poly)
 		{
-			if (s.normal.dot(s.next.normal) > CraftConfig.joinMinCosAngle)
+			if (s.getNormal().dot(s.next.getNormal()) > CraftConfig.joinMinCosAngle)
 			{
 				removeModelSegment(s);
 				Segment2D next = s.next;
@@ -174,6 +174,6 @@ public class Layer
 				modelSegmentTree.insert(next);
 			}
 		}
-		modelPart.polygons.add(poly);
+		modelPart.addPolygon(poly);
 	}
 }

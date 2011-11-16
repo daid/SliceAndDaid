@@ -55,7 +55,7 @@ public class PreviewFrame extends JFrame
 		
 		private void drawSegment(Graphics g, Segment2D s)
 		{
-			switch (s.type)
+			switch (s.getType())
 			{
 			case Segment2D.TYPE_MODEL_SLICE:
 				g.setColor(Color.GREEN);
@@ -75,7 +75,7 @@ public class PreviewFrame extends JFrame
 			}
 			drawModelLine(g, s.start, s.end);
 			Vector2 center = s.start.add(s.end).div(2);
-			Vector2 normal = center.add(s.normal.div(drawScale / 5));
+			Vector2 normal = center.add(s.getNormal().div(drawScale / 5));
 			drawModelLine(g, center, normal);
 			drawModelLine(g, s.start, normal);
 			if (s.prev == null)
