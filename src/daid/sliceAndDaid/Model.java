@@ -125,12 +125,12 @@ public class Model
 			line = line.trim();
 			if (line.startsWith("facet normal"))
 			{
-				String[] parts = line.split(" ");
+				String[] parts = line.split(" +");
 				normal = new Vector3(Double.parseDouble(parts[2]), Double.parseDouble(parts[3]), Double.parseDouble(parts[4]));
 			}
 			if (line.startsWith("vertex"))
 			{
-				String[] parts = line.split(" ");
+				String[] parts = line.split(" +");
 				nextTri.point[i] = new Vector3(Double.parseDouble(parts[1]), Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
 				i++;
 				if (i == 3)

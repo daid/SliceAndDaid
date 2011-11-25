@@ -140,6 +140,8 @@ public class Layer
 	{
 		for (Segment2D s : poly)
 		{
+			//TODO: This sometimes hangs...
+			/*
 			if (s.normal.dot(s.next.normal) > CraftConfig.joinMinCosAngle)
 			{
 				removeModelSegment(s);
@@ -148,6 +150,7 @@ public class Layer
 				poly.removeEnd(s);
 				modelSegmentTree.insert(next);
 			}
+			*/
 		}
 		modelPart.polygons.add(poly);
 	}
