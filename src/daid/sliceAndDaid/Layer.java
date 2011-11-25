@@ -163,17 +163,6 @@ public class Layer
 				modelSegmentTree.insert(next);
 			}
 		}
-		for (Segment2D s : poly)
-		{
-			if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength * CraftConfig.minSegmentLength)
-			{
-				removeModelSegment(s);
-				Segment2D next = s.next;
-				modelSegmentTree.remove(next);
-				poly.remove(s);
-				modelSegmentTree.insert(next);
-			}
-		}
 		modelPart.addPolygon(poly);
 	}
 }

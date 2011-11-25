@@ -10,7 +10,6 @@ public class LayerPart implements Iterable<Polygon>
 {
 	private Layer layer;
 	private Vector<Polygon> polygons = new Vector<Polygon>();
-	public AABBTree<Segment2D> tree = new AABBTree<Segment2D>();
 	
 	public LayerPart(Layer layer)
 	{
@@ -37,11 +36,6 @@ public class LayerPart implements Iterable<Polygon>
 			}
 		}
 		return largestPoly;
-	}
-	
-	public void add(Segment2D newSeg)
-	{
-		tree.insert(newSeg);
 	}
 	
 	public void addPolygon(Polygon poly)

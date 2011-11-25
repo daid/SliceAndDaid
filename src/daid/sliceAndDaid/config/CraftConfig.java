@@ -109,7 +109,7 @@ public class CraftConfig
 	@Setting(level = Setting.LEVEL_KITCHENSINK,
 			title = "Minimum segment length (mm)",
 			description = "Remove segments shorter then this length.")
-	public static double minSegmentLength = 0.5;
+	public static double minSegmentLength = 0.1;
 
 	@Setting(level = Setting.LEVEL_ADVANCED, group = "GCode",
 			title = "GCode format",

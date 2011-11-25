@@ -68,7 +68,8 @@ public class Polygon implements Iterable<Segment2D>
 		{
 			first = s;
 		}
-		last.next = s;
+		if (last != null)
+			last.next = s;
 		s.prev = last;
 		last = s;
 	}
@@ -111,6 +112,17 @@ public class Polygon implements Iterable<Segment2D>
 			s.prev = null;
 			s.next = null;
 		}
+	}
+
+	public void close()
+	{
+		if (enclosed)
+			throw new UnsupportedOperationException();
+		check();
+		enclosed = true;
+		last.next = first;
+		first.prev = last;
+		check();
 	}
 
 	public Segment2D cutPoly(Segment2D s)

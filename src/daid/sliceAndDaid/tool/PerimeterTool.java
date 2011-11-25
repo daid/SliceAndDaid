@@ -1,9 +1,11 @@
 package daid.sliceAndDaid.tool;
 
+import sun.reflect.generics.tree.Tree;
 import daid.sliceAndDaid.LayerPart;
 import daid.sliceAndDaid.Polygon;
 import daid.sliceAndDaid.Segment2D;
 import daid.sliceAndDaid.config.CraftConfig;
+import daid.sliceAndDaid.util.AABBTree;
 import daid.sliceAndDaid.util.Vector2;
 
 /**
@@ -23,8 +25,10 @@ public class PerimeterTool
 	public LayerPart createPerimeter()
 	{
 		LayerPart ret = new LayerPart(layerPart);
+		AABBTree<Segment2D> tree = new AABBTree<Segment2D>();
 		for (Polygon poly : layerPart)
 		{
+			Polygon newPoly = new Polygon();
 			Segment2D first = null, prev = null;
 			for (Segment2D s : poly)
 			{
@@ -32,8 +36,8 @@ public class PerimeterTool
 				Vector2 end = s.end.sub(s.getNormal().mul(distance));
 				Segment2D newSeg = new Segment2D(Segment2D.TYPE_PERIMETER, start, end);
 				newSeg.lineWidth = CraftConfig.perimeterWidth;
-				ret.add(newSeg);
 
+				newPoly.addEnd(newSeg);
 				if (prev == null)
 				{
 					first = newSeg;
@@ -45,14 +49,14 @@ public class PerimeterTool
 				prev = newSeg;
 			}
 
-			if (first != null)
+			if (!newPoly.empty())
 			{
+				newPoly.close();
 				linkUp(ret, prev, first);
-				Polygon newPoly = new Polygon(first);
-				/*
-				 * for (Segment2D s : newPoly) { if (s.end.sub(s.start).vSize2() < CraftConfig.minSegmentLength CraftConfig.minSegmentLength) {
-				 * ret.tree.remove(s); Segment2D next = s.next; ret.tree.remove(next); newPoly.remove(s); ret.tree.insert(next); } }
-				 */
+				for (Segment2D s : newPoly)
+				{
+					tree.insert(s);
+				}
 				ret.addPolygon(newPoly);
 			}
 		}
@@ -84,7 +88,6 @@ public class PerimeterTool
 			newSeg.prev = prev;
 			next.prev = newSeg;
 			newSeg.next = next;
-			ret.add(newSeg);
 		} else
 		{
 			prev.end = p;
