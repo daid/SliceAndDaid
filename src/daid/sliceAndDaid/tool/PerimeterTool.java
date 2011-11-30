@@ -84,17 +84,15 @@ public class PerimeterTool
 			next.start = p2;
 			Segment2D newSeg = new Segment2D(Segment2D.TYPE_PERIMETER, p1, p2);
 			newSeg.lineWidth = CraftConfig.perimeterWidth;
-			prev.next = newSeg;
-			newSeg.prev = prev;
-			next.prev = newSeg;
-			newSeg.next = next;
+			prev.setNext(null);
+			prev.setNext(newSeg);
+			newSeg.setNext(next);
 		} else
 		{
 			prev.end = p;
 			next.start = p;
 
-			prev.next = next;
-			next.prev = prev;
+			//prev.setNext(next);
 		}
 	}
 }

@@ -27,7 +27,7 @@ public class GCodeTool
 		if (layer.pathStart == null)
 			return;
 		file.writeMoveXY(layer.pathStart.start.x, layer.pathStart.start.y, CraftConfig.travelSpeed, "");
-		for (Segment2D s = layer.pathStart; s != null; s = s.next)
+		for (Segment2D s = layer.pathStart; s != null; s = s.getNext())
 		{
 			if (s.lineWidth < 0)
 			{

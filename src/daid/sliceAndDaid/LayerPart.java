@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import daid.sliceAndDaid.util.AABBTree;
 import daid.sliceAndDaid.util.AABBrect;
+import daid.sliceAndDaid.util.Vector2;
 
 public class LayerPart implements Iterable<Polygon>
 {
@@ -43,7 +44,6 @@ public class LayerPart implements Iterable<Polygon>
 		poly.check();
 		if (poly.empty())
 		{
-			System.out.println("E");
 			return;
 		}
 		polygons.add(poly);
@@ -52,43 +52,44 @@ public class LayerPart implements Iterable<Polygon>
 	/**
 	 * makeConvex is used to generate a single convex polygon from the existing polygon set.
 	 * 
-	 * This is used for the skirt. And it's currently not working correctly.
+	 * This is used for the skirt. Right now it creates a square box around the object.
 	 */
 	public LayerPart makeConvex()
 	{
-		Polygon poly = getLargestPolygon();
 		LayerPart ret = new LayerPart(this);
-		if (poly == null)
-			return ret;
-
-		Segment2D first = null;
-		Segment2D prev = null;
-		for(Segment2D s1 : poly)
+		double minX = Double.MAX_VALUE;
+		double maxX = Double.MIN_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxY = Double.MIN_VALUE;
+		for (Polygon p : polygons)
 		{
-			Segment2D s = new Segment2D(Segment2D.TYPE_PERIMETER, s1.start, s1.end);
-			
-			if (prev == null)
+			for (Segment2D s : p)
 			{
-				first = s;
-			} else
-			{
-				prev.next = s;
-				s.prev = prev;
+				if (s.start.x < minX)
+					minX = s.start.x;
+				if (s.start.y < minY)
+					minY = s.start.y;
+				if (s.start.x > maxX)
+					maxX = s.start.x;
+				if (s.start.y > maxY)
+					maxY = s.start.y;
 			}
-			prev = s;
 		}
-		first.prev = prev;
-		prev.next = first;
-		ret.polygons.add(new Polygon(first));
-		
+		Polygon p = new Polygon();
+		p.addEnd(new Segment2D(Segment2D.TYPE_PERIMETER, new Vector2(minX, minY), new Vector2(minX, maxY)));
+		p.addEnd(new Segment2D(Segment2D.TYPE_PERIMETER, new Vector2(minX, maxY), new Vector2(maxX, maxY)));
+		p.addEnd(new Segment2D(Segment2D.TYPE_PERIMETER, new Vector2(maxX, maxY), new Vector2(maxX, minY)));
+		p.addEnd(new Segment2D(Segment2D.TYPE_PERIMETER, new Vector2(maxX, minY), new Vector2(minX, minY)));
+		p.close();
+		ret.addPolygon(p);
 		return ret;
 	}
-
+	
 	public Iterator<Polygon> iterator()
 	{
 		return polygons.iterator();
 	}
-
+	
 	public Vector<Polygon> getPolygonListClone()
 	{
 		return new Vector<Polygon>(polygons);

@@ -47,7 +47,7 @@ public class PreviewFrame extends JFrame
 			{
 				drawSegment(g, s);
 			}
-			for (Segment2D s = layers.get(showLayer).pathStart; s != null; s = s.next)
+			for (Segment2D s = layers.get(showLayer).pathStart; s != null; s = s.getNext())
 			{
 				drawSegment(g, s);
 			}
@@ -78,9 +78,9 @@ public class PreviewFrame extends JFrame
 			Vector2 normal = center.add(s.getNormal().div(drawScale / 5));
 			drawModelLine(g, center, normal);
 			drawModelLine(g, s.start, normal);
-			if (s.prev == null)
+			if (s.getPrev() == null)
 				drawModelCircle(g, s.start, 10);
-			if (s.next == null)
+			if (s.getNext() == null)
 				drawModelCircle(g, s.end, 10);
 		}
 		

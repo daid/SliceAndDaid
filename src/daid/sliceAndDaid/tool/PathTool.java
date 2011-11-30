@@ -29,9 +29,9 @@ public class PathTool
 			Polygon poly = layer.skirt.getLargestPolygon();
 			if (poly != null)
 			{
-				prev = layer.skirt.getLargestPolygon().closestTo(bestStartPoint);
+				prev = poly.closestTo(bestStartPoint);
 				layer.pathStart = prev;
-				prev = prev.prev;
+				prev = poly.cutPoly(prev);
 			}
 		}
 

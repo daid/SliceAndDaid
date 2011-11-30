@@ -21,7 +21,7 @@ public class Polygon implements Iterable<Segment2D>
 		if (first == null)
 			return;
 		last = first;
-		for (Segment2D s = first.next; s != null; s = s.next)
+		for (Segment2D s = first.getNext(); s != null; s = s.getNext())
 		{
 			if (s == first)
 			{
@@ -69,8 +69,7 @@ public class Polygon implements Iterable<Segment2D>
 			first = s;
 		}
 		if (last != null)
-			last.next = s;
-		s.prev = last;
+			last.setNext(s);
 		last = s;
 	}
 
@@ -82,35 +81,38 @@ public class Polygon implements Iterable<Segment2D>
 	{
 		if (s == first)
 		{
-			first = s.next;
+			first = s.getNext();
+			//In case we are enclosed with a single segment, the next is the same one. So we are back to an empty polygon.
 			if (first == s)
 				first = null;
 		}
 		if (s == last)
 		{
-			last = last.prev;
+			last = last.getPrev();
+			//In case we are enclosed with a single segment, the prev is the same one. So we are back to an empty polygon.
 			if (last == s)
 				last = null;
 		}
 
-		if (s.next == null)
+		if (s.getNext() == null)
 		{
 			if (enclosed)
 				throw new RuntimeException();
 			// Remove 's' from the linked list.
-			s.prev = null;
+			s.getPrev().setNext(null);
 		} else
 		{
 			// Update the start point of s.next to the end of the previous point. Effectively removing
 			// s.end from the polygon.
-			s.next.update(s.prev.end, s.next.end);
+			s.getNext().update(s.getPrev().end, s.getNext().end);
 			// Remove 's' from the linked list.
 			// We can set 's.next' to null here, even if we are iterating over 's',
 			// because the next point of iteration has already been stored by the iterator.
-			s.next.prev = s.prev;
-			s.prev.next = s.next;
-			s.prev = null;
-			s.next = null;
+			Segment2D prev = s.getPrev();
+			Segment2D next = s.getNext();
+			prev.setNext(null);
+			s.setNext(null);
+			prev.setNext(next);
 		}
 	}
 
@@ -120,8 +122,7 @@ public class Polygon implements Iterable<Segment2D>
 			throw new UnsupportedOperationException();
 		check();
 		enclosed = true;
-		last.next = first;
-		first.prev = last;
+		last.setNext(first);
 		check();
 	}
 
@@ -130,9 +131,8 @@ public class Polygon implements Iterable<Segment2D>
 		if (!enclosed)
 			throw new UnsupportedOperationException();
 		enclosed = false;
-		Segment2D ret = s.prev;
-		ret.next = null;
-		s.prev = null;
+		Segment2D ret = s.getPrev();
+		ret.setNext(null);
 		return ret;
 	}
 
@@ -142,24 +142,26 @@ public class Polygon implements Iterable<Segment2D>
 			return;
 		if (enclosed)
 		{
-			if (first.prev == null)
+			if (first.getPrev() == null)
 				throw new RuntimeException();
-			if (last.next == null)
+			if (last.getNext() == null)
 				throw new RuntimeException();
-			if (last.next != first)
+			if (last.getNext() != first)
 				throw new RuntimeException();
-			if (first.prev != last)
+			if (first.getPrev() != last)
 				throw new RuntimeException();
-			for (Segment2D s = first.next; s != first; s = s.next)
+			for (Segment2D s = first.getNext(); s != first; s = s.getNext())
 			{
 				if (s == null)
+					throw new RuntimeException();
+				if (s.getPrev().getNext() != s)
 					throw new RuntimeException();
 			}
 		} else
 		{
-			if (first.prev != null)
+			if (first.getPrev() != null)
 				throw new RuntimeException();
-			if (last.next != null)
+			if (last.getNext() != null)
 				throw new RuntimeException();
 		}
 	}
@@ -191,7 +193,7 @@ public class Polygon implements Iterable<Segment2D>
 		public Segment2D next()
 		{
 			Segment2D ret = next;
-			next = next.next;
+			next = next.getNext();
 			if (next == first)
 				next = null;
 			return ret;

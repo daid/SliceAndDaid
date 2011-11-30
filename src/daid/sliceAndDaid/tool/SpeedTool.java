@@ -16,7 +16,7 @@ public class SpeedTool
 	public void updateSpeed()
 	{
 		double layerTime = 0;
-		for (Segment2D s = layer.pathStart; s != null; s = s.next)
+		for (Segment2D s = layer.pathStart; s != null; s = s.getNext())
 		{
 			if (s.lineWidth < 0)
 			{
@@ -33,7 +33,7 @@ public class SpeedTool
 		if (layerTime < CraftConfig.minLayerTime)
 		{
 			double multiply = layerTime / CraftConfig.minLayerTime;
-			for (Segment2D s = layer.pathStart; s != null; s = s.next)
+			for (Segment2D s = layer.pathStart; s != null; s = s.getNext())
 			{
 				s.feedRate *= multiply;
 			}
